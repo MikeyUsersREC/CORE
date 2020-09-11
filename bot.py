@@ -79,6 +79,13 @@ async def announce(ctx):
                                             color=discord.Color.from_rgb(0, 0, 255))
             await channel.send("" , embed=cancelEmbed)
             return
+        if categoryMsg.content == "placeholder":
+            AnnouncementEmbed = discord.Embed(title="KG | Information" , description=msg.content ,
+
+                                              color=discord.Color.from_rgb(0 , 0 , 255))
+            AnnouncementEmbed.set_thumbnail(
+                url="https://media.discordapp.net/attachments/733628287548653669/754109649074257960/768px-Logo_informations.png?width=468&height=468")
+
         if categoryMsg.content == "information":
             AnnouncementEmbed = discord.Embed(title="KG | Information" , description=msg.content ,
 
