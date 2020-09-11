@@ -15,7 +15,7 @@ async def on_ready():
 @bot.command()
 async def rps(ctx):
     num = randint(1, 3)
-    embed = discord.Embed(title="Rock Paper Scissors!", color=discord.Color.from_rgb(0, 0, 255))
+    embed = discord.Embed(title="Rock Paper Scissors!", color=discord.Color.from_rgb(0, 255, 0))
     if num == 1:
         embed.description = "Rock!"
     elif num == 2:
