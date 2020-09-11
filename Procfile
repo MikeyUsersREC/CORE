@@ -1,1 +1,1 @@
-worker: python osrp.py
+worker: python bot.py
