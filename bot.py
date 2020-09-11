@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 bot = commands.Bot(command_prefix='!' , description=None)
 import asyncio
-import random
+from random import randint
 from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
 
@@ -14,7 +14,7 @@ async def on_ready():
 
 @bot.command()
 async def rps(ctx):
-    num = random.random(1, 3)
+    num = randint(1, 3)
     embed = discord.Embed(title="Rock Paper Scissors!", color=discord.Color.from_rgb(0, 0, 255))
     if num == 1:
         embed.description = "Rock!"
