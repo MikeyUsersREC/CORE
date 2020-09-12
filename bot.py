@@ -13,7 +13,7 @@ async def on_ready():
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with Kevinator"))
 
-@bot.event()
+@bot.event
 async def on_message(message):
     if "ip" in message.content:
         await message.author.send("That word is blacklisted in the Kevinator Gang Discord Server!")
