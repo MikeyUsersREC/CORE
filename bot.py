@@ -162,7 +162,7 @@ async def announce(ctx):
                                          color=discord.Color.from_rgb(0, 0, 255))
         await channel.send("" , embed=TimeoutEmbed)
 
-@bot.commnd()
+@bot.command()
 async def tag(ctx, argument):
     if argument.content == "mod":
         embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9")
