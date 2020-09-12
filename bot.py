@@ -171,10 +171,14 @@ async def tag(ctx, argument):
         embed = discord.Embed(title="Kevinator's Twitch", url="https://twitch.tv/keviiinator", color=discord.Color.from_rgb(252, 206, 0))
         await ctx.send(embed=embed)
     elif argument == "discord":
-        embed = discord.Embed(title="Discord Invite", url="discord.gg/P24XMKP", color=discord.Color.from_rgb(252, 206, 0))
+        embed = discord.Embed(title="Discord Invite", url="https://discord.gg/P24XMKP", color=discord.Color.from_rgb(252, 206, 0))
         await ctx.send(embed=embed)
     return
 
+@tag.error
+async def tag_error(ctx, error):
+    errorEmbed = discord.Embed(title="Something went wrong.", description="Have you put the correct arguments?\n\nSyntax:\n\n!tag [argument]", color=discord.Color.from_rgb(255, 0, 0))
+    await ctx.send(embed=errorEmbed)
 @announce.error
 async def announce_error(ctx, error):
     if isinstance(error, CheckFailure):
