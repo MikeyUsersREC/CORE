@@ -165,13 +165,13 @@ async def announce(ctx):
 @bot.command()
 async def tag(ctx, argument):
     if argument == "mod":
-        embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9", color=discord.Color.from_rgb(252, 206, 0))
+        embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9", description="This is the moderator form.", color=discord.Color.from_rgb(252, 206, 0))
         await ctx.send(embed=embed)
     elif argument == "twitch":
-        embed = discord.Embed(title="Kevinator's Twitch", url="https://twitch.tv/keviiinator", color=discord.Color.from_rgb(252, 206, 0))
+        embed = discord.Embed(title="Kevinator's Twitch", url="https://twitch.tv/keviiinator", description="This is the twitch channel.", color=discord.Color.from_rgb(252, 206, 0))
         await ctx.send(embed=embed)
     elif argument == "discord":
-        embed = discord.Embed(title="Discord Invite", url="https://discord.gg/P24XMKP", color=discord.Color.from_rgb(252, 206, 0))
+        embed = discord.Embed(title="Discord Invite", url="https://discord.gg/P24XMKP", description="This is the discord invite.", color=discord.Color.from_rgb(252, 206, 0))
         await ctx.send(embed=embed)
     return
 
