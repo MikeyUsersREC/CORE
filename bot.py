@@ -168,6 +168,10 @@ async def tag(ctx, argument):
         embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9")
         await ctx.send(embed=embed)
     return
+
+@tag.error()
+async def tag_error(ctx, error):
+    errorEmbed = discord.Embed(title="Something went wrong.", description="Have you put the correct arguments?\n\nSyntax:\n\n!tag [argument]\n\n||" + str(error) + "||")
 @announce.error
 async def announce_error(ctx, error):
     if isinstance(error, CheckFailure):
