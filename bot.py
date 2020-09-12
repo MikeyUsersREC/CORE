@@ -164,7 +164,7 @@ async def announce(ctx):
 
 @bot.command()
 async def tag(ctx, argument):
-    if argument.content == "mod":
+    if argument == "mod":
         embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9")
         await ctx.send(embed=embed)
     return
