@@ -167,10 +167,10 @@ async def tag(ctx, argument):
     if argument == "mod":
         embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9", color=discord.Color.fromrgb(252, 206, 0))
         await ctx.send(embed=embed)
-    if argument == "twitch":
+    elif argument == "twitch":
         embed = discord.Embed(title="Kevinator's Twitch", url="https://twitch.tv/keviiinator", color=discord.Color.fromrgb(252, 206, 0))
         await ctx.send(embed=embed)
-    if argument == "discord":
+    elif argument == "discord":
         embed = discord.Embed(title="Discord Invite", url="discord.gg/P24XMKP", color=discord.Color.fromrgb(252, 206, 0))
         await ctx.send(embed=embed)
     return
