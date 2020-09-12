@@ -189,8 +189,8 @@ async def kick(ctx, member : discord.Member, *, reason=None):
 
 @bot.command()
 @has_role("Bot Access")
-async def kick(ctx, member : discord.Member, *, reason=None):
-    await member.kick(reason=reason)
+async def ban(ctx, member : discord.Member, *, reason=None):
+    await member.ban(reason=reason)
     banEmbed = discord.Embed(title="Successfully Banned.", description=member.display_name + " was banned for: " + reason, color=discord.Color.from_rgb(0, 255, 0))
     if reason == None:
         banEmbed.description = member.display_name + "was banned successfully."
