@@ -12,6 +12,34 @@ async def on_ready():
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with Kevinator"))
 
+@bot.event
+async def on_raw_reaction_add(payload):
+    message_id = payload.message_id
+    if message_id == 754434807202840658:
+        guild_id = payload.guild_id
+        guild = discord.utils.find(lambda g : g.id == guild_id, bot.guilds)
+        if payload.emoji.name == "twitch":
+            role = discord.utils.get(guild.roles, name="Stream Notifications")
+            member = discord.utils.find(lambda m : m.id == payload.user_id, guild.members)
+            if member is not None:
+                await member.add_roles(role)
+                print("Role given!")
+            else:
+                print("Member not found!")
+
+async def on_raw_reaction_remove(payload):
+    message_id = payload.message_id
+    if message_id == 754434807202840658:
+        guild_id = payload.guild_id
+        guild = discord.utils.find(lambda g : g.id == guild_id, bot.guilds)
+        if payload.emoji.name == "twitch":
+            role = discord.utils.get(guild.roles, name="Stream Notifications")
+            member = discord.utils.find(lambda m : m.id == payload.user_id, guild.members)
+            if member is not None:
+                await member.remove_roles(role)
+                print("Role given!")
+            else:
+                print("Member not found!")
 @bot.command()
 async def rps(ctx):
     num = randint(1, 3)
