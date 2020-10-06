@@ -13,13 +13,7 @@ async def on_ready():
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with Kevinator"))
 
-@bot.event
-async def on_message(message):
-    if "ip" in message.content:
-        await message.author.send("That word is blacklisted in the Kevinator Gang Discord Server!")
-        await message.delete()
 
-    await bot.process_commands(message)
 
 @bot.command()
 async def rps(ctx):
@@ -185,6 +179,9 @@ async def tag(ctx, argument):
     elif argument == "rules":
         embed = discord.Embed(title="Kevinator Gang | Guidelines", description="1. You cannot ping staff members without permission in any situation.\n\n2. Respect people how you would like to be treated.\n\n3. In no circumstances can you disrespect anyone else in our community.\n\n4. Bullying is not tolerated, no matter whether it is a joke or not.\n\n5. Our Moderators know what they are doing and any arguments that arise from a moderator actions will be dealt with professionally. \n\n6. Failure to comply with Moderators can result in a severe punishment.\n\n7. People may not share links or files that may harm other users/yourself.\n\n8. Spamming chat will not be permitted.\n\n9. NSFW Language, Avatars or Nicknames will result in a punishment.\n\n10. Do not ask for any roles or permissions unless absolutely necessary.\n\n11. Terms and Conditions require to be followed by all members in our server.\n\n12. Content must be relevant to the channel you put it in.\n\n13. No Disrupting Stream.\n\n14. Punishments cannot be biased or unlawful, every punishment made by a Moderator must be reasoned.\n\n15. You shall not try to be annoying or hindering to a Moderator.\n\n16. You cannot bypass the rules in any way shape or form.", color=discord.Color.from_rgb(252, 206, 0))
         await ctx.send(embed=embed)
+    elif arguments == "protocols" or argument == "warnings":
+        embed = discord.Embed(title="KDS | Discord Warning System", description="Warning 1: Verbal Warning \nWarning 2: Warning\nWarning 3: Kick\nWarning 4: Warning\nWarning 5: 24h Mute\nWarning 6: Ban", color=discord.Color.from_rgb(252, 206, 0))
+        await ctx.send(embed=embed)
     return
 
 @bot.command()
@@ -206,6 +203,10 @@ async def ban(ctx, member : discord.Member, *, reason=None):
     await ctx.send(embed=banEmbed)
 
 
+@bot.command()
+async def categories(ctx)
+    f = discord.Embed(title="Categories", description="These are the categories for the KDS Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment")
+    ctx.send(embed=f)
 
 @tag.error
 async def tag_error(ctx, error):
@@ -218,5 +219,6 @@ async def announce_error(ctx, error):
         await ctx.send("", embed=errorEmbed)
     else:
         raise error
+        
 
 bot.run('NzM0NDk1NDg2NzIzMjI3NzYw.XxSiOg.3B_xKd3mkEOavNHMrXaMX0HN_04')
