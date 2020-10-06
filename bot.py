@@ -204,7 +204,7 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 
 
 @bot.command()
-async def categories(ctx)
+async def categories(ctx):
     f = discord.Embed(title="Categories", description="These are the categories for the KDS Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment")
     ctx.send(embed=f)
 
