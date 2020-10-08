@@ -124,7 +124,7 @@ async def announce(ctx):
                 return
         elif categoryMsg.content == "developmentWithPing":
             if ctx.message.author.id == 635119023918415874:
-                TestingEmbed = discord.Embed(title=":construction: Development Announcement" ,
+                TestingEmbed = discord.Embed(title=":construction:  Development Announcement" ,
                                                   description=msg.content ,
 
                                                   color=discord.Color.from_rgb(255, 145, 0))
@@ -138,7 +138,7 @@ async def announce(ctx):
                 return
         elif categoryMsg.content == "development":
             if ctx.message.author.id == 635119023918415874:
-                TestingEmbed = discord.Embed(title=":construction: Development Announcement" ,
+                TestingEmbed = discord.Embed(title=":construction:  Development Announcement" ,
                                              description=msg.content ,
 
                                              color=discord.Color.from_rgb(255 , 145 , 0))
@@ -218,7 +218,7 @@ async def random(ctx):
 
 @bot.command()
 async def commands(ctx):
-    embed = discord.Embed(title="Commands", description="**Help** \n\n!commands \n\n**Games**\n\n!rps\n!random\n\n**Moderation**\n\n!kick\n!ban\n!purge \n\n**Announcements**\n\n!announce", color=discord.Color.from_rgb(252, 206, 0))
+    embed = discord.Embed(title="Commands", description="**Help** \n\n!commands \n\n**Games**\n\n!rps\n!random\n\n**Moderation**\n\n!kick\n!ban\n!purge\n!tag \n\n**Announcements**\n\n!announce", color=discord.Color.from_rgb(252, 206, 0))
     await ctx.send(embed=embed)
 
 
