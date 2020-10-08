@@ -6,6 +6,7 @@ import asyncio
 from random import randint
 from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
+from discord.ext.commands import has_permissions
 
 @bot.event
 async def on_ready():
@@ -205,8 +206,29 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 
 @bot.command()
 async def categories(ctx):
-    f = discord.Embed(title="Categories", description="These are the categories for the KDS Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment")
+    f = discord.Embed(title="Categories", description="These are the categories for the KDS Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment", color=discord.Color.from_rgb(252, 206, 0))
     ctx.send(embed=f)
+
+
+@bot.command()
+async def random(ctx):
+    randomMember = random.choice(ctx.guild.members)
+    await channel.send(f'{randomMember.mention} is the chosen one!')
+
+@bot.command()
+async def commands(ctx):
+    embed = discord.Embed(title="Commands", description="**Help** \n\n!commands \n\n**Games**\n\n!rps\n!random\n\n**Moderation**\n\n!kick\n!ban\n!purge \n\n**Announcements**\n\n!announce", color=discord.Color.from_rgb(252, 206, 0))
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+@has_permissions(manage_channels=True)
+async def purge(ctx, amount=15):
+    await ctx.channel.purge(limit=amount)
+    embed = discord.Embed(title="Channel Purge", description="This channel was purged by" + ctx.author.display_name):
+    await ctx.send(embed=embed)
+
+
 
 @tag.error
 async def tag_error(ctx, error):
@@ -219,6 +241,6 @@ async def announce_error(ctx, error):
         await ctx.send("", embed=errorEmbed)
     else:
         raise error
-        
+
 
 bot.run('NzM0NDk1NDg2NzIzMjI3NzYw.XxSiOg.3B_xKd3mkEOavNHMrXaMX0HN_04')
