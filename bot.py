@@ -225,9 +225,6 @@ async def commands(ctx):
 @has_permissions(manage_channels=True)
 async def purge(ctx, amount=15):
     await ctx.channel.purge(limit=amount)
-    embed = discord.Embed(title="Channel Purge", description="This channel was purged by" + ctx.author.display_name):
-    await ctx.send(embed=embed)
-
 
 
 @tag.error
