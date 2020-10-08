@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 bot = commands.Bot(command_prefix='!' , description=None)
 bot.remove_command("help")
-import random
+from random import choice
 import asyncio
 from random import randint
 from discord.ext.commands import CheckFailure
@@ -213,7 +213,7 @@ async def categories(ctx):
 
 @bot.command()
 async def random(ctx):
-    randomMember = random.choice(ctx.guild.members)
+    randomMember = choice(ctx.guild.members)
     await channel.send(f'{randomMember.mention} is the chosen one!')
 
 @bot.command()
