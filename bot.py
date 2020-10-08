@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 bot = commands.Bot(command_prefix='!' , description=None)
 bot.remove_command("help")
+import random
 import asyncio
 from random import randint
 from discord.ext.commands import CheckFailure
