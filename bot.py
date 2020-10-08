@@ -214,7 +214,7 @@ async def categories(ctx):
 @bot.command()
 async def random(ctx):
     randomMember = choice(ctx.guild.members)
-    await channel.send(f'{randomMember.mention} is the chosen one!')
+    await ctx.send(f'{randomMember.mention} is the chosen one!')
 
 @bot.command()
 async def commands(ctx):
