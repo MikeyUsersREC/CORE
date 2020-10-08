@@ -207,7 +207,7 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 
 @bot.command()
 async def categories(ctx):
-    f = discord.Embed(title="Categories", description="These are the categories for the KDS Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment", color=discord.Color.from_rgb(252, 206, 0))
+    f = discord.Embed(title="Categories", description="These are the categories for the KDS Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment,\ndevelopmentWithPing", color=discord.Color.from_rgb(252, 206, 0))
     await ctx.send(embed=f)
 
 
