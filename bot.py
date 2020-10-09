@@ -9,7 +9,7 @@ from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
 from discord.ext.commands import has_permissions
 
-core_logo = "https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128"
+
 core_color = discord.Color.from_rgb(30, 144, 255)
 
 @bot.event
@@ -221,14 +221,14 @@ async def random(ctx):
 
 @bot.command()
 async def help(ctx):
-    helpEmbed = discord.Embed(color=core_color, title="CORE | Help", thumbnail=core_logo)
+    helpEmbed = discord.Embed(color=core_color, title="CORE | Help", thumbnail="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     helpEmbed.set_footer(text="CORE | Help")
     await ctx.send(embed=helpEmbed)
 
 @bot.command()
 async def update(ctx):
-    updateEmbed = discord.Embed(title="Most recent update:", description="- Added update command\n- Renamed Branding to CORE\n- Added help command", thumbnail=core_logo, color=core_color)
-
+    updateEmbed = discord.Embed(title="Most recent update:", description="- Added update command\n- Renamed Branding to CORE\n- Added help command", thumbnail="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128", color=core_color)
+    await ctx.send(updateEmbed)
 
 @bot.command()
 @has_permissions(manage_channels=True)
