@@ -210,7 +210,7 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 
 @bot.command()
 async def categories(ctx):
-    f = discord.Embed(title="Categories", description="These are the categories for the CORE Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment,\ndevelopmentWithPing", color=discord.Color.from_rgb(252, 206, 0))
+    f = discord.Embed(title="Categories", description="These are the categories for the CORE Announce command:\n\ninformation,\nimportant,\nwarning,\ncritical,\ndevelopment,\ndevelopmentWithPing", color=core_color)
     await ctx.send(embed=f)
 
 
@@ -221,13 +221,14 @@ async def random(ctx):
 
 @bot.command()
 async def help(ctx):
-    helpEmbed = discord.Embed(color=core_color, title="CORE | Help", thumbnail="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
     helpEmbed.set_footer(text="CORE | Help")
     await ctx.send(embed=helpEmbed)
 
 @bot.command()
 async def update(ctx):
-    updateEmbed = discord.Embed(title="Most recent update:", description="- Added update command\n- Renamed Branding to CORE\n- Added help command", thumbnail="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent update:", description="- Added update command\n- Renamed Branding to CORE\n- Added help command", color=core_color)
+    updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
 @bot.command()
