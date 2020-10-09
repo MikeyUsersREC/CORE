@@ -223,6 +223,17 @@ async def random(ctx):
 async def help(ctx):
     helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
     helpEmbed.set_footer(text="CORE | Help")
+    helpEmbed.add_field(name="!help", value="Help Command for CORE", inline=False)
+    helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=False)
+    helpEmbed.add_field(name="!random", value="Chooses a random user and says that they are the chosen one", inline=False)
+    helpEmbed.add_field(name="!purge", value="To clear a selected amount of messages in that channel", inline=False)
+    helpEmbed.add_field(name="!update", value="Says the most recent update for CORE", inline=False)
+    helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=False)
+    helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=False)
+    helpEmbed.add_field(name="!tag", value="Says information based on what you put as the argument", inline=False)
+    helpEmbed.add_field(name="!announce", value="Announces a message in the announcement channel", inline=False)
+    helpEmbed.add_field(name="!categories", value="Specifies the available announcement categories", inline=False)
+    helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=helpEmbed)
 
 @bot.command()
