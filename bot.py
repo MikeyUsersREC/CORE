@@ -5,6 +5,7 @@ import os
 bot.remove_command("help")
 from random import choice
 import asyncio
+import json
 from random import randint
 from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
@@ -12,7 +13,7 @@ from discord.ext.commands import has_permissions
 
 
 core_color = discord.Color.from_rgb(30, 144, 255)
-announcement_channel = None
+announcement_channel = "announcements"
 
 
 @bot.event
@@ -21,17 +22,6 @@ async def on_ready():
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with CORE"))
 
-@bot.command()
-async def setup(ctx):
-    setupEmbed = discord.Embed(title="Announcement Channel", description="Please reply with the channel you want to be used for the !announce command.", color=core_color)
-    setupEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-    await ctx.send(embed=setupEmbed)
-    msg = await bot.wait_for("message")
-    announcement_channel = "#" + msg.content
-    finishedEmbed = discord.Embed(title="Setup Finished", description="The setup has completed successfully!", color=core_color)
-    finishedEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-    await ctx.send(finishedEmbed)
-    pass
 
 @bot.command()
 async def load(ctx, extension):
@@ -65,10 +55,6 @@ async def rps(ctx):
 async def announce(ctx):
     channel = ctx.message.channel
     announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
-    if announcement_channel == None:
-        NoAnnounceChannelEmbed = discord.Embed(title="Please complete setup", description="Please run the !setup command and then use this command.", color=core_color)
-        NoAnnounceChannelEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-        await ctx.send(embed=NoAnnounceChannelEmbed)
         return
     areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?" ,
                                  color=core_color)
@@ -261,7 +247,8 @@ async def update(ctx):
 @bot.command()
 @has_permissions(manage_channels=True)
 async def purge(ctx, amount=15):
-    await ctx.channel.purge(limit=amount)
+    new_amount = amount + 1
+    await ctx.channel.purge(limit=new_amount)
 
 @announce.error
 async def announce_error(ctx, error):
