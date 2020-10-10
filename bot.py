@@ -23,11 +23,11 @@ async def on_ready():
 
 @bot.command()
 async def setup(ctx):
-    setupEmbed = discord.Embed(title="Announcement Channel", description="Please reply with the NAME of the channel (without the hashtag) you want to be used for the !announce command.", color=core_color)
+    setupEmbed = discord.Embed(title="Announcement Channel", description="Please reply with the channel you want to be used for the !announce command.", color=core_color)
     setupEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=setupEmbed)
-    setup_announcement_msg = bot.wait_for("message")
-    announcement_channel = "#" + str(setup_announcement_msg.content)
+    msg = await bot.wait_for("message")
+    announcement_channel = "#" + msg.content
     finishedEmbed = discord.embed(title="Setup Finished", description="The setup has completed successfully!", color=core_color)
     finishedEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(finishedEmbed)
