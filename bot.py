@@ -5,12 +5,11 @@ import os
 bot.remove_command("help")
 from random import choice
 import asyncio
-import json
 from random import randint
 from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
 from discord.ext.commands import has_permissions
-
+from discord.utils import get
 
 core_color = discord.Color.from_rgb(30, 144, 255)
 announcement_channel = "announcements"
@@ -22,6 +21,12 @@ async def on_ready():
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with CORE"))
 
+@bot.event
+async def on_member_join(member):
+    role = get(member.guild.roles, name="Member")
+    await member.add_roles(role)
+    f = open("on_member_join.txt", "a")
+    f.write(f"{member} was given {role}")
 
 @bot.command()
 async def load(ctx, extension):
@@ -31,6 +36,23 @@ async def load(ctx, extension):
 async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
+@bot.command()
+@has_role("Bot Access")
+async def mute(ctx, member: discord.Member):
+    role = discord.utils.get(ctx.guild.roles, name="Muted")
+    await member.add_roles(role)
+    embed=discord.Embed(title="User muted!", description="**{0}** was muted by **{1}**!".format(member.display_name, ctx.author.name), color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
+
+@bot.command()
+@has_role("Bot Access")
+async def unmute(ctx, member: discord.Member):
+    role = discord.utils.get(ctx.guild.roles, name='Muted')
+    await member.remove_roles(role)
+    embed=discord.Embed(title="User muted!", description="**{0}** was unmuted by **{1}**!".format(member.display_name, ctx.author.name), color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def info(ctx, *, member: discord.Member):
