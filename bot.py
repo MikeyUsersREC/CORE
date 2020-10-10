@@ -30,6 +30,8 @@ async def setup(ctx):
     announcement_channel = "#" + setup_announcement_msg.content
     finishedEmbed = discord.embed(title="Setup Finished", description="The setup has completed successfully!", color=core_color)
     finishedEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(finishedEmbed)
+    pass
 
 @bot.command()
 async def load(ctx, extension):
