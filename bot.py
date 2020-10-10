@@ -12,15 +12,21 @@ from discord.ext.commands import has_permissions
 
 
 core_color = discord.Color.from_rgb(30, 144, 255)
-
+announcement_channel = None
 
 
 @bot.event
 async def on_ready():
     print("Bot online!")
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
-    await bot.change_presence(activity=discord.Game(name="with CORE V2.0"))
+    await bot.change_presence(activity=discord.Game(name="with CORE"))
 
+async def setup(ctx):
+    setupEmbed = discord.Embed(title="Announcement Channel", description="Please reply with the NAME of the channel (without the hashtag) you want to be used for the !announce command.", color=core_color)
+    setupEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    announcement_channel = "#" + bot.wait_for("message")
+    finishedEmbed = discord.embed(title="Setup Finished", description="The setup has completed successfully!", color=core_color)
+    finishedEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 
 @bot.command()
 async def load(ctx, extension):
@@ -33,7 +39,9 @@ async def unload(ctx, extension):
 @bot.command()
 async def info(ctx, *, member: discord.Member):
     fmt = '{0} joined on {0.joined_at} and has {1} roles.'
-    await ctx.send(fmt.format(member, len(member.roles)))
+    infoEmbed = discord.Embed(title="Information", description=fmt.format(member, len(member.roles)), color=core_color)
+    infoEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=infoEmbed)
 
 @bot.command()
 async def rps(ctx):
@@ -46,11 +54,17 @@ async def rps(ctx):
     elif num == 3:
         embed.description = "Scissors!"
     await ctx.send(embed=embed)
+
 @bot.command()
 @has_role("Bot Access")
 async def announce(ctx):
     channel = ctx.message.channel
-    announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name="📢announcements")
+    announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
+    if announcement_channel = None:
+        NoAnnounceChannelEmbed = discord.Embed(title="Please complete setup", description="Please run the !setup command and then use this command.", color=core_color)
+        NoAnnounceChannelEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=NoAnnounceChannelEmbed)
+        return
     areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?" ,
                                  color=core_color)
     await ctx.send("" , embed=areSureEmbed)
@@ -227,6 +241,8 @@ async def help(ctx):
     helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=False)
     helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=False)
     helpEmbed.add_field(name="!announce", value="Announces a message in the announcement channel", inline=False)
+    helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=False)
+    helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=False)
     helpEmbed.add_field(name="!categories", value="Specifies the available announcement categories", inline=False)
     helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=helpEmbed)
