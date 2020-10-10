@@ -3,7 +3,7 @@ import discord
 core_color = discord.Color.from_rgb(30, 144, 255)
 
 @commands.command()
-async def tag(self, ctx, argument):
+async def tag(ctx, argument):
     if argument == "mod":
         embed = discord.Embed(title="Moderator Form", url="https://forms.gle/fduX4QMDu29NTkLE9", description="This is the moderator form.", color=core_color)
         await ctx.send(embed=embed)
