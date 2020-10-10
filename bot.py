@@ -32,6 +32,24 @@ async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
 @bot.command()
+@has_role("Bot Access")
+async def mute(ctx, member: discord.Member):
+    role = discord.utils.get(member.server.roles, name='Muted')
+    await member.add_roles()
+    embed=discord.Embed(title="User muted!", description="**{0}** was muted by **{1}**!".format(member.display_name, ctx.author.name), color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
+
+@bot.command()
+@has_role("Bot Access")
+async def unmute(ctx, member: discord.Member):
+    role = discord.utils.get(member.server.roles, name='Muted')
+    await member.remove_roles(member, role)
+    embed=discord.Embed(title="User muted!", description="**{0}** was unmuted by **{1}**!".format(member.display_name, ctx.author.name), color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
+
+@bot.command()
 async def info(ctx, *, member: discord.Member):
     fmt = '{0} joined on {0.joined_at} and has {1} roles.'
     infoEmbed = discord.Embed(title="Information", description=fmt.format(member, len(member.roles)), color=core_color)
