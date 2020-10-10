@@ -27,7 +27,7 @@ async def load(ctx, extension):
     bot.load_extension(f'extensions.{extension}')
 
 @bot.command()
-async def load(ctx, extension):
+async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
 @bot.command()
