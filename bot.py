@@ -212,6 +212,7 @@ async def ban(ctx, member : discord.Member, *, reason=None):
 @bot.command()
 async def categories(ctx):
     f = discord.Embed(title="Categories", description="These are the categories for the CORE Announce command:\n\ninformation,\nimportant,\nwarning", color=core_color)
+    f.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=f)
 
 
