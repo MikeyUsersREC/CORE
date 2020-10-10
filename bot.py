@@ -55,7 +55,6 @@ async def rps(ctx):
 async def announce(ctx):
     channel = ctx.message.channel
     announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
-        return
     areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?" ,
                                  color=core_color)
     await ctx.send("" , embed=areSureEmbed)
