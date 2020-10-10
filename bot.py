@@ -60,7 +60,7 @@ async def rps(ctx):
 async def announce(ctx):
     channel = ctx.message.channel
     announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
-    if announcement_channel = None:
+    if announcement_channel == None:
         NoAnnounceChannelEmbed = discord.Embed(title="Please complete setup", description="Please run the !setup command and then use this command.", color=core_color)
         NoAnnounceChannelEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=NoAnnounceChannelEmbed)
