@@ -66,6 +66,13 @@ async def rps(ctx, arg):
     await ctx.send(embed=embed)
 
 @bot.command()
+async def set(ctx,*,channel):
+    announcement_channel = channel
+    embed = discord.Embed(title="Successfully Changed", description="The announcement channel has been changed.", color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
+    
+@bot.command()
 @has_permissions(manage_channels=True) 
 async def announce(ctx):
     channel = ctx.message.channel
