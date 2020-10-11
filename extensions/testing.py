@@ -8,5 +8,5 @@ async def test(ctx, *, args):
   await ctx.send(args)
   return
 
-  def setup(bot):
+def setup(bot):
     bot.add_command(test)
