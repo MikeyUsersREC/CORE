@@ -39,6 +39,23 @@ async def mute(ctx, member: discord.Member):
     await ctx.send(embed=embed)
 
 @bot.command()
+async def maths(ctx):
+    num1 = randint(3000, 10000)
+    num2 = randint(1000, 27000)
+    result = num1 + num2
+    mathsEmbed = discord.Embed(title="Maths with CORE", description=f"Work out this calculation and say it in chat.\n\n{num1} + {num2}", color=core_color)
+    mathsEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await msg = bot.wait_for("message")
+    if msg.content == str(result):
+        succesfulEmbed = discord.Embed(title="Maths with CORE", description="You successfully guessed the answer.", color=core_color)
+        succesfulEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=succesfulEmbed)
+    else:
+        failureEmbed = discord.Embed(title="Maths with CORE", description="Answer was incorrect.", color=core_color)
+        failureEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=failureEmbed)
+
+@bot.command()
 @has_permissions(manage_messages=True) 
 async def unmute(ctx, member: discord.Member):
     role = discord.utils.get(ctx.guild.roles, name='Muted')
@@ -249,6 +266,7 @@ async def help(ctx):
     helpEmbed.set_footer(text="CORE | Help")
     helpEmbed.add_field(name="!help", value="Help Command for CORE", inline=False)
     helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=False)
+    helpEmbed.add_field(name="!maths", value="A maths game where you need to work out the answer for a random calculation!", inline=False)
     helpEmbed.add_field(name="!random", value="Chooses a random user and says that they are the chosen one", inline=False)
     helpEmbed.add_field(name="!purge", value="To clear a selected amount of messages in that channel", inline=False)
     helpEmbed.add_field(name="!update", value="Specifies the most recent update for CORE", inline=False)
