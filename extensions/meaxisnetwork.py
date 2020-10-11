@@ -6,13 +6,13 @@ core_color = discord.Color.from_rgb(30, 144, 255)
 @commands.command()
 async def test(ctx):
 	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "username"}
-	r = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
 	json = r.json()
 	username = json["message"]
 
-	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "avatar_url"}
-	r2 = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	await ctx.send(r2.content)
+	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "avatarurl"}
+	avatarRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+	await ctx.send(avatarRequest.text)
 
 def setup(bot):
     bot.add_command(test)
