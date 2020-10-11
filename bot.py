@@ -21,13 +21,6 @@ async def on_ready():
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with CORE"))
 
-@bot.event
-async def on_member_join(member):
-    role = get(member.guild.roles, name="Member")
-    await member.add_roles(role)
-    f = open("on_member_join.txt", "a")
-    f.write(f"{member} was given {role}")
-
 @bot.command()
 async def load(ctx, extension):
     bot.load_extension(f'extensions.{extension}')
@@ -37,7 +30,7 @@ async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
 @bot.command()
-@has_role("Bot Access")
+@has_permissions(manage_messages=True)  
 async def mute(ctx, member: discord.Member):
     role = discord.utils.get(ctx.guild.roles, name="Muted")
     await member.add_roles(role)
@@ -46,7 +39,7 @@ async def mute(ctx, member: discord.Member):
     await ctx.send(embed=embed)
 
 @bot.command()
-@has_role("Bot Access")
+@has_permissions(manage_messages=True) 
 async def unmute(ctx, member: discord.Member):
     role = discord.utils.get(ctx.guild.roles, name='Muted')
     await member.remove_roles(role)
@@ -62,19 +55,18 @@ async def info(ctx, *, member: discord.Member):
     await ctx.send(embed=infoEmbed)
 
 @bot.command()
-async def rps(ctx):
-    num = randint(1, 3)
+async def rps(ctx, arg):
     embed = discord.Embed(title="Rock Paper Scissors!", color=core_color)
-    if num == 1:
-        embed.description = "Rock!"
-    elif num == 2:
+    if arg.lower() == "rock":
         embed.description = "Paper!"
-    elif num == 3:
+    elif arg.lower() == "paper":
         embed.description = "Scissors!"
+    elif arg.lower() == "scissors":
+        embed.description = "Rock!"
     await ctx.send(embed=embed)
 
 @bot.command()
-@has_role("Bot Access")
+@has_permissions(manage_server=True) 
 async def announce(ctx):
     channel = ctx.message.channel
     announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
@@ -213,7 +205,7 @@ async def announce(ctx):
         await channel.send("" , embed=TimeoutEmbed)
 
 @bot.command()
-@has_role("Bot Access")
+@has_permissions(kick_members=True) 
 async def kick(ctx, member : discord.Member, *, reason=None):
     await member.kick(reason=reason)
     kickEmbed = discord.Embed(title="Successfully Kicked.", description=member.display_name + " was kicked for: " + reason, color=core_color)
@@ -222,7 +214,7 @@ async def kick(ctx, member : discord.Member, *, reason=None):
     await ctx.send(embed=kickEmbed)
 
 @bot.command()
-@has_role("Bot Access")
+@has_permissions(ban_members=True) 
 async def ban(ctx, member : discord.Member, *, reason=None):
     await member.ban(reason=reason)
     banEmbed = discord.Embed(title="Successfully Banned.", description=member.display_name + " was banned for: " + reason, color=core_color)
@@ -276,7 +268,7 @@ async def purge(ctx, amount=15):
 @announce.error
 async def announce_error(ctx, error):
     if isinstance(error, CheckFailure):
-        errorEmbed = discord.Embed(title="Something went wrong.", description="Something went wrong. The permission 'Bot Access' is required to run this command.", color= discord.Color.from_rgb(255, 0, 0))
+        errorEmbed = discord.Embed(title="Something went wrong.", description="Something went wrong. The permission 'Manage Server' is required to run this command.", color= discord.Color.from_rgb(255, 0, 0))
         await ctx.send("", embed=errorEmbed)
     else:
         raise error
