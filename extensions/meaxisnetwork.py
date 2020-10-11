@@ -10,4 +10,4 @@ async def test(ctx):
 	await ctx.send(r.text)
 
 def setup(bot):
-    bot.add_command(search)
+    bot.add_command(test)
