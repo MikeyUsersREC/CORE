@@ -29,7 +29,6 @@ async def my_account(ctx):
 	AccountID = accountIDJSON["message"]
 
 	embed = discord.Embed(title=username, description=f"{description}\nAccount ID: {AccountID}", color=core_color)
-	embed.set_thumbnail(url=avatarURLFixed)
 	await ctx.send(embed=embed)
 
 def setup(bot):
