@@ -33,4 +33,4 @@ async def my_account(ctx):
 	await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_command(my_account())
+    bot.add_command(my_account)
