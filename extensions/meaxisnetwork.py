@@ -14,6 +14,14 @@ async def my_account(ctx):
 	descriptionRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
 	descriptionJSON = descriptionRequest.json()
 	description = descriptionJSON["message"]
+	descriptionFixed = description.replace("\r", "")
+
+	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "profilepicture"}
+	avatarRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+	avatarJSON = avatarRequest.json()
+	avatarURLSource = descriptionJSON["message"]
+	avatarURLString = str(avatarURLSource)
+	avatarURLFixed = avatarURLString.replace("\\", "")
 
 	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "id"}
 	accountIDRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
@@ -21,6 +29,8 @@ async def my_account(ctx):
 	AccountID = accountIDJSON["message"]
 
 	embed = discord.Embed(title=username, description=f"{description}\n\nAccount ID: {AccountID}", color=core_color)
-	
+	embed.set_thumbnail(url=avatarURLFixed)
+	await ctx.send(embed=embed)
+
 def setup(bot):
-    bot.add_command(my_account)
+    bot.add_command(my_account())
