@@ -11,8 +11,8 @@ async def test(ctx):
 	username = json["message"]
 
 	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "avatar_url"}
-	r = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	await ctx.send(r.text)
+	r2 = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+	await ctx.send(r2.content)
 
 def setup(bot):
     bot.add_command(test)
