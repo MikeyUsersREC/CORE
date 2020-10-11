@@ -66,7 +66,7 @@ async def rps(ctx, arg):
     await ctx.send(embed=embed)
 
 @bot.command()
-@has_permissions(manage_server=True) 
+@has_permissions(manage_channels=True) 
 async def announce(ctx):
     channel = ctx.message.channel
     announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
