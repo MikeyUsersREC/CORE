@@ -23,4 +23,4 @@ async def my_account(ctx):
 	embed = discord.Embed(title=username, description=f"{description}\n\nAccount ID: {AccountID}", color=core_color)
 	
 def setup(bot):
-    bot.add_command(test)
+    bot.add_command(my_account)
