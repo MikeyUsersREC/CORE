@@ -4,15 +4,23 @@ import requests
 core_color = discord.Color.from_rgb(30, 144, 255)
 
 @commands.command()
-async def test(ctx):
+async def my_account(ctx):
 	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "username"}
 	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	json = usernameRequest.json()
-	username = json["message"]
+	usernameJSON = usernameRequest.json()
+	username = usernameJSON["message"]
 
-	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "avatarurl"}
-	avatarRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	print(avatarRequest.json())
+	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "description"}
+	descriptionRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+	descriptionJSON = descriptionRequest.json()
+	description = descriptionJSON["message"]
 
+	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "id"}
+	accountIDRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+	accountIDJSON = accountIDRequest.json()
+	AccountID = accountIDJSON["message"]
+
+	embed = discord.Embed(title=username, description=f"{description}\n\nAccount ID: {AccountID}", color=core_color)
+	
 def setup(bot):
     bot.add_command(test)
