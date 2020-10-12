@@ -10,6 +10,7 @@ from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
 from discord.ext.commands import has_permissions
 from discord.utils import get
+import json
 
 core_color = discord.Color.from_rgb(30, 144, 255)
 announcement_channel = "announcements"
@@ -20,6 +21,59 @@ async def on_ready():
     print("Bot online!")
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
     await bot.change_presence(activity=discord.Game(name="with CORE"))
+
+@bot.command()
+async def balance(ctx):
+    await open_account(ctx.author)
+    user = ctx.author
+    users = await get_bank_data()
+
+    wallet_amt = users[str(user.id)]["wallet"]
+    bank_amt = users[str(user.id)]["bank"]
+
+    balanceEmbed = discord.Embed(title = f"{ctx.author.name}'s balance", color = core_color)
+    balanceEmbed.add_field(name = "Wallet", value = wallet_amt)
+    balanceEmbed.add_field(name = "Bank", value = bank_amt)
+    await ctx.send(embed=balanceEmbed)
+
+async def get_bank_data():
+    with open("mainbank.json", "r") as f:
+        users = json.load(f)
+    return users
+
+@bot.command()
+async def beg(ctx):
+    await open_account(ctx.author)
+
+    users = await get_bank_data()
+
+    user = ctx.author
+
+
+    earnings = randint(0, 100)
+
+    await ctx.send(f"Someone gave you {earnings} coins!")
+
+    users[str(user.id)]["wallet"] += earnings
+
+   with open("mainbank.json", "w") as f:
+        json.dump(users, f) 
+
+async def open_account(user):
+
+    users = await get_bank_data()
+
+    with open("mainbank.json", "r") as f:
+        users = json.load(f)
+    if str(user.id) is in users:
+        return False
+    else:
+        users[str(user.id)] = {}
+        users[str(user.id)]["wallet"]
+        users[str(user.id)]["bank"]
+    with open("mainbank.json", "w") as f:
+        json.dump(users, f) 
+    return True     
 
 @bot.command()
 async def load(ctx, extension):
