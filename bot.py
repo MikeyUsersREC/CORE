@@ -56,7 +56,7 @@ async def beg(ctx):
 
     users[str(user.id)]["wallet"] += earnings
 
-   with open("mainbank.json", "w") as f:
+    with open("mainbank.json", "w") as f:
         json.dump(users, f) 
 
 async def open_account(user):
