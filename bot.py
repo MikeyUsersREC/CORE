@@ -168,13 +168,11 @@ async def announce(ctx):
 
                                               color=discord.Color.from_rgb(255 , 0 , 0))
             AnnouncementEmbed.set_thumbnail(
-                url="https://cdn.discordapp.com/icons/722195079262896239/a_5601885314afd8e105fc079a7df408da.webp?size=128")
+                url="https://cdn.discordapp.com/emojis/746034342303891585.png?v=1")
         elif categoryMsg.content == "warning":
             AnnouncementEmbed = discord.Embed(title=":warning: Warning Announcement" , description=msg.content ,
 
                                               color=discord.Color.from_rgb(252, 206, 0))
-            AnnouncementEmbed.set_thumbnail(
-                url="https://cdn.discordapp.com/emojis/746034342303891585.png?v=1")
             await announcements.send("", embed=AnnouncementEmbed)
             return
         elif categoryMsg.content == "critical":
