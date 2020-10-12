@@ -65,7 +65,7 @@ async def open_account(user):
 
     with open("mainbank.json", "r") as f:
         users = json.load(f)
-    if str(user.id) is in users:
+    if str(user.id) in users:
         return False
     else:
         users[str(user.id)] = {}
