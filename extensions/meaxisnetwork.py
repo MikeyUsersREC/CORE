@@ -31,6 +31,7 @@ async def myaccount(ctx):
 	embed = discord.Embed(title=username, color=core_color)
 	embed.add_field(name = "Description", value = description)
 	embed.add_field(name = "Account ID", value = AccountID)
+	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
 @commands.command()
@@ -44,6 +45,7 @@ async def funfact(ctx):
 	embed = discord.Embed(title=f"Funfact #{funfactID}", color=core_color)
 	embed.add_field(name = "Funfact:", value = funfact)
 	embed.add_field(name = "Author", value = funfactAuthor)
+	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
 @command.command()
@@ -52,9 +54,27 @@ async def leafy(ctx):
 	embed = discord.Embed(title=f"Leafy API Status", color=core_color)
 	embed.add_field(name = "Status:", value = status_code)
 	embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.")
+	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 	return
+
+@commands.command()
+async def funfact(ctx):
+	funfactRequest = requests.get("https://api.meaxisnetwork.net/v2/funfact/")
+	funfactJSON = funfactRequest.json()
+	funfact = funfactJSON["text"]
+	funfactID = funfactJSON["id"]
+	funfactAuthor = funfactJSON["author"]
+	
+	embed = discord.Embed(title=f"Funfact #{funfactID}", color=core_color)
+	embed.add_field(name = "Funfact:", value = funfact)
+	embed.add_field(name = "Author", value = funfactAuthor)
+	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+	await ctx.send(embed=embed)
+
 
 
 def setup(bot):
     bot.add_command(myaccount)
+    bot.add_command(funfact)
+    bot.add_command(leafy)
