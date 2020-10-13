@@ -28,8 +28,33 @@ async def myaccount(ctx):
 	accountIDJSON = accountIDRequest.json()
 	AccountID = accountIDJSON["message"]
 
-	embed = discord.Embed(title=username, description=f"{description}\nAccount ID: {AccountID}", color=core_color)
+	embed = discord.Embed(title=username, color=core_color)
+	embed.add_field(name = "Description", value = description)
+	embed.add_field(name = "Account ID", value = AccountID)
 	await ctx.send(embed=embed)
+
+@commands.command()
+async def funfact(ctx):
+	funfactRequest = requests.get("https://api.meaxisnetwork.net/v2/funfact/")
+	funfactJSON = funfactRequest.json()
+	funfact = funfactJSON["text"]
+	funfactID = funfactJSON["id"]
+	funfactAuthor = funfactJSON["author"]
+	
+	embed = discord.Embed(title=f"Funfact #{funfactID}", color=core_color)
+	embed.add_field(name = "Funfact:", value = funfact)
+	embed.add_field(name = "Author", value = funfactAuthor)
+	await ctx.send(embed=embed)
+
+@command.command()
+async def leafy(ctx):
+	leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
+	embed = discord.Embed(title=f"Leafy API Status", color=core_color)
+	embed.add_field(name = "Status:", value = status_code)
+	embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.")
+	await ctx.send(embed=embed)
+	return
+
 
 def setup(bot):
     bot.add_command(myaccount)
