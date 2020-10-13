@@ -48,7 +48,7 @@ async def funfact(ctx):
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
-@command.command()
+@commands.command()
 async def leafy(ctx):
 	leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
 	embed = discord.Embed(title=f"Leafy API Status", color=core_color)
