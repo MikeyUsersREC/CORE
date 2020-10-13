@@ -29,8 +29,8 @@ async def myaccount(ctx):
 	AccountID = accountIDJSON["message"]
 
 	embed = discord.Embed(title=username, color=core_color)
-	embed.add_field(name = "Description", value = description)
-	embed.add_field(name = "Account ID", value = AccountID)
+	embed.add_field(name = "Description", value = description, inline = False)
+	embed.add_field(name = "Account ID", value = AccountID, inline = False)
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
@@ -43,8 +43,8 @@ async def funfact(ctx):
 	funfactAuthor = funfactJSON["author"]
 	
 	embed = discord.Embed(title=f"Funfact #{funfactID}", color=core_color)
-	embed.add_field(name = "Funfact:", value = funfact)
-	embed.add_field(name = "Author", value = funfactAuthor)
+	embed.add_field(name = "Funfact:", value = funfact, inline = False)
+	embed.add_field(name = "Author", value = funfactAuthor, inline = False)
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
@@ -52,8 +52,8 @@ async def funfact(ctx):
 async def leafy(ctx):
 	leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
 	embed = discord.Embed(title=f"Leafy API Status", color=core_color)
-	embed.add_field(name = "Status:", value = leafyRequest.status_code)
-	embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.")
+	embed.add_field(name = "Status:", value = leafyRequest.status_code, inline = False)
+	embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.", inline = False)
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 	return
@@ -67,8 +67,8 @@ async def funfact(ctx):
 	funfactAuthor = funfactJSON["author"]
 	
 	embed = discord.Embed(title=f"Funfact #{funfactID}", color=core_color)
-	embed.add_field(name = "Funfact:", value = funfact)
-	embed.add_field(name = "Author", value = funfactAuthor)
+	embed.add_field(name = "Funfact:", value = funfact, inline = False)
+	embed.add_field(name = "Author", value = funfactAuthor, inline = False)
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
