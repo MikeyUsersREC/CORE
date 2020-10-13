@@ -24,8 +24,9 @@ async def on_ready():
 
 @bot.command()
 async def load(ctx, extension):
-    bot.load_extension(f'extensions.{extension}')
-    embed = discord.Embed(title="Extension loaded!", description=f"{extension}.py was loaded.", color=core_color)
+    extensionLowered = extension.lower()
+    bot.load_extension(f'extensions.{extensionLowered}')
+    embed = discord.Embed(title="Extension loaded!", description=f"{extensionLowered}.py was loaded.", color=core_color)
     embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=embed)
 
