@@ -59,16 +59,15 @@ async def leafy(ctx):
 	return
 
 @commands.command()
-async def funfact(ctx):
-	funfactRequest = requests.get("https://api.meaxisnetwork.net/v2/funfact/")
-	funfactJSON = funfactRequest.json()
-	funfact = funfactJSON["text"]
-	funfactID = funfactJSON["id"]
-	funfactAuthor = funfactJSON["author"]
-	
-	embed = discord.Embed(title=f"Funfact #{funfactID}", color=core_color)
-	embed.add_field(name = "Funfact:", value = funfact, inline = False)
-	embed.add_field(name = "Author", value = funfactAuthor, inline = False)
+async def finduser(ctx, username):
+	payload = {"username": username}
+	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/exists/", params=payload)
+	usernameJSON = usernameRequest.json()
+	usernameResult = usernameJSON["message"]
+	embed = discord.Embed(title=f"Result of Command", color=core_color)
+	embed.add_field(name = "Username Entered:", value = username, inline = False)
+	embed.add_field(name = "Result:", value = usernameResult, inline = False)
+	embed.add_field(name = "Status Code:", value = f"{usernameJSON["code"]}", inline = False)
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 	await ctx.send(embed=embed)
 
@@ -78,3 +77,4 @@ def setup(bot):
     bot.add_command(myaccount)
     bot.add_command(funfact)
     bot.add_command(leafy)
+    bot.add_command(finduser)
