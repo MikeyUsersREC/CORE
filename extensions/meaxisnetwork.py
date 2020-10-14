@@ -64,7 +64,7 @@ async def finduser(ctx, username):
 	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/exists/", params=payload)
 	usernameJSON = usernameRequest.json()
 	usernameResult = usernameJSON["message"]
-	embed = discord.Embed(title=f"Result of Command", color=core_color)
+	embed = discord.Embed(title="Command Result", color=core_color)
 	embed.add_field(name = "Username Entered:", value = username, inline = False)
 	embed.add_field(name = "Result:", value = usernameResult, inline = False)
 	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
