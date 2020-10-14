@@ -31,6 +31,18 @@ async def load(ctx, extension):
     await ctx.send(embed=embed)
 
 @bot.command()
+async def support(ctx):
+    embed = discord.Embed(title="Support", description="Support Server: https://discord.gg/YH8WQCT", color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def invite(ctx):
+    embed = discord.Embed(title="Bot Invite", description="Bot Invite: https://discord.com/api/oauth2/authorize?client_id=734495486723227760&permissions=8&scope=bot", color=core_color)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(embed=embed)
+
+@bot.command()
 async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
@@ -282,6 +294,8 @@ async def help(ctx):
     helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=False)
     helpEmbed.add_field(name="!categories", value="Specifies the available announcement categories", inline=False)
     helpEmbed.add_field(name="!info", value="Specifies information about a certain member", inline=False)
+    helpEmbed.add_field(name="!support", value="Specifies the support server.", inline=False)
+    helpEmbed.add_field(name="!invite", value="Allows you to invite the bot.", inline=False)
     helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=helpEmbed)
 
