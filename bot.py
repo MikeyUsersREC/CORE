@@ -51,7 +51,7 @@ async def unload(ctx, extension):
 async def run(ctx, *, command):
     if ctx.author.id == 635119023918415874:
         try:
-            eval(cmd)
+            eval(command)
             await ctx.send(f'CORE executed your command --> {cmd}')
         except:
             print(f'{cmd} is an invalid command')
