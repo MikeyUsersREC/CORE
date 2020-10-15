@@ -46,6 +46,16 @@ async def invite(ctx):
 async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
+
+@bot.command(name='eval', pass_context=True)
+async def eval_(ctx, *, command):
+    if ctx.author.id == 635119023918415874:
+        res = eval(command)
+        embed = discord.Embed(title="Evaluation Complete", description=f"Response:\n\n```\n{res}\n```", color=core_color)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=embed)
+
+
 @bot.command()
 @has_permissions(manage_messages=True)
 async def mute(ctx, member: discord.Member):
