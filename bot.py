@@ -48,10 +48,10 @@ async def unload(ctx, extension):
 
 
 @bot.command()
-async def run(ctx, *, command):
+async def run(ctx, *, cmd):
     if ctx.author.id == 635119023918415874:
         try:
-            eval(command)
+            eval(cmd)
             await ctx.send(f'CORE executed your command --> {cmd}')
         except:
             print(f'{cmd} is an invalid command')
