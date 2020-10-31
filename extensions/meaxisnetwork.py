@@ -6,7 +6,7 @@ mn_color = discord.Color.from_rgb(35, 35, 35)
 meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
 
 @commands.command()
-async def myaccount(ctx):
+async def profile(ctx):
 	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "username"}
 	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
 	usernameJSON = usernameRequest.json()
@@ -75,7 +75,7 @@ async def finduser(ctx, username):
 
 
 def setup(bot):
-    bot.add_command(myaccount)
+    bot.add_command(profile)
     bot.add_command(funfact)
     bot.add_command(leafy)
     bot.add_command(finduser)
