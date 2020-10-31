@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 import requests
 core_color = discord.Color.from_rgb(30, 144, 255)
-mn_color = discord.Color.from_rgb(255, 255, 255)
+mn_color = discord.Color.from_rgb(35, 35, 35)
 meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
 
 @commands.command()
@@ -66,7 +66,7 @@ async def finduser(ctx, username):
 	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/exists/", params=payload)
 	usernameJSON = usernameRequest.json()
 	usernameResult = usernameJSON["message"]
-	embed = discord.Embed(title="Command Result", color=mn_color)
+	embed = discord.Embed(title="User Result", color=mn_color)
 	embed.add_field(name = "Username Entered:", value = username, inline = False)
 	embed.add_field(name = "Result:", value = usernameResult, inline = False)
 	embed.set_thumbnail(url=meaxisnetwork_url)
