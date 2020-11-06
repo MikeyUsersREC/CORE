@@ -10,6 +10,7 @@ from discord.ext.commands import CheckFailure
 from discord.ext.commands import has_role
 from discord.ext.commands import has_permissions
 from discord.utils import get
+import requests
 import json
 
 core_color = discord.Color.from_rgb(30, 144, 255)
@@ -383,7 +384,7 @@ async def help(ctx):
 
 @bot.command()
 async def update(ctx):
-    updateEmbed = discord.Embed(title="Most recent update:", description="- Added the !maths command\n- Now able to set your announcement channel\n- !mute and !unmute added", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent update:", description="- Fixed MeaxisNetwork Commands.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
