@@ -38,4 +38,4 @@ token = "TOKEN HERE"
 
 Run the python file and then your bot will be online!
 
-
+o

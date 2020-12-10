@@ -25,6 +25,17 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="with CORE"))
     bot.load_extension(f'extensions.dbl')
 
+@bot.event
+async def on_message(message):
+    if message.guild.id == 722195079262896239:
+        if "phrog" in message.content.lower():
+            await message.channel.purge(limit=1)
+            await message.channel.send(f"{message.author.mention} Your message has been censored for: 'Word not permitted in our community.'")
+        await bot.process_commands(message)
+    else:
+        await bot.process_commands(message)
+
+
 @bot.command()
 async def load(ctx, extension):
     extensionLowered = extension.lower()
@@ -55,70 +66,70 @@ meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
 
 @bot.command()
 async def profile(ctx):
-	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "username"}
-	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	usernameJSON = usernameRequest.json()
-	username = usernameJSON["message"]
+    payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "username"}
+    usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+    usernameJSON = usernameRequest.json()
+    username = usernameJSON["message"]
 
-	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "description"}
-	descriptionRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	descriptionJSON = descriptionRequest.json()
-	description = descriptionJSON["message"]
-	descriptionFixed = description.replace("\r", "")
+    payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "description"}
+    descriptionRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+    descriptionJSON = descriptionRequest.json()
+    description = descriptionJSON["message"]
+    descriptionFixed = description.replace("\r", "")
 
-	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "profilepicture"}
-	avatarRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	avatarJSON = avatarRequest.json()
-	avatarURLSource = descriptionJSON["message"]
-	avatarURLString = str(avatarURLSource)
-	avatarURLFixed = avatarURLString.replace(r'\/','/')
+    payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "profilepicture"}
+    avatarRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+    avatarJSON = avatarRequest.json()
+    avatarURLSource = descriptionJSON["message"]
+    avatarURLString = str(avatarURLSource)
+    avatarURLFixed = avatarURLString.replace(r'\/','/')
 
-	payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "id"}
-	accountIDRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-	accountIDJSON = accountIDRequest.json()
-	AccountID = accountIDJSON["message"]
+    payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "id"}
+    accountIDRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
+    accountIDJSON = accountIDRequest.json()
+    AccountID = accountIDJSON["message"]
 
-	embed = discord.Embed(title=username, color=mn_color)
-	embed.add_field(name = "Description", value = description, inline = False)
-	embed.add_field(name = "Account ID", value = AccountID, inline = False)
-	embed.set_thumbnail(url=meaxisnetwork_url)
-	await ctx.send(embed=embed)
+    embed = discord.Embed(title=username, color=mn_color)
+    embed.add_field(name = "Description", value = description, inline = False)
+    embed.add_field(name = "Account ID", value = AccountID, inline = False)
+    embed.set_thumbnail(url=meaxisnetwork_url)
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def funfact(ctx):
-	funfactRequest = requests.get("https://api.meaxisnetwork.net/v2/funfact/")
-	funfactJSON = funfactRequest.json()
-	funfact = funfactJSON["text"]
-	funfactID = funfactJSON["id"]
-	funfactAuthor = funfactJSON["author"]
-	
-	embed = discord.Embed(title=f"Funfact #{funfactID}", color=mn_color)
-	embed.add_field(name = "Funfact:", value = funfact, inline = False)
-	embed.add_field(name = "Author", value = funfactAuthor, inline = False)
-	embed.set_thumbnail(url=meaxisnetwork_url)
-	await ctx.send(embed=embed)
+    funfactRequest = requests.get("https://api.meaxisnetwork.net/v2/funfact/")
+    funfactJSON = funfactRequest.json()
+    funfact = funfactJSON["text"]
+    funfactID = funfactJSON["id"]
+    funfactAuthor = funfactJSON["author"]
+    
+    embed = discord.Embed(title=f"Funfact #{funfactID}", color=mn_color)
+    embed.add_field(name = "Funfact:", value = funfact, inline = False)
+    embed.add_field(name = "Author", value = funfactAuthor, inline = False)
+    embed.set_thumbnail(url=meaxisnetwork_url)
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def leafy(ctx):
-	leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
-	embed = discord.Embed(title=f"Leafy API Status", color=mn_color)
-	embed.add_field(name = "Status:", value = leafyRequest.status_code, inline = False)
-	embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.", inline = False)
-	embed.set_thumbnail(url=meaxisnetwork_url)
-	await ctx.send(embed=embed)
-	return
+    leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
+    embed = discord.Embed(title=f"Leafy API Status", color=mn_color)
+    embed.add_field(name = "Status:", value = leafyRequest.status_code, inline = False)
+    embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.", inline = False)
+    embed.set_thumbnail(url=meaxisnetwork_url)
+    await ctx.send(embed=embed)
+    return
 
 @bot.command()
 async def finduser(ctx, username):
-	payload = {"username": username}
-	usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/exists/", params=payload)
-	usernameJSON = usernameRequest.json()
-	usernameResult = usernameJSON["message"]
-	embed = discord.Embed(title="User Result", color=mn_color)
-	embed.add_field(name = "Username Entered:", value = username, inline = False)
-	embed.add_field(name = "Result:", value = usernameResult, inline = False)
-	embed.set_thumbnail(url=meaxisnetwork_url)
-	await ctx.send(embed=embed)
+    payload = {"username": username}
+    usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/exists/", params=payload)
+    usernameJSON = usernameRequest.json()
+    usernameResult = usernameJSON["message"]
+    embed = discord.Embed(title="User Result", color=mn_color)
+    embed.add_field(name = "Username Entered:", value = username, inline = False)
+    embed.add_field(name = "Result:", value = usernameResult, inline = False)
+    embed.set_thumbnail(url=meaxisnetwork_url)
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def run(ctx, *, cmd):
@@ -141,23 +152,44 @@ async def mute(ctx, member: discord.Member):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def maths(ctx):
-    num1 = randint(100, 1000)
-    num2 = randint(1000, 5000)
-    result = num1 + num2
-    mathsEmbed = discord.Embed(title="Maths with CORE", description=f"Work out this calculation and say it in chat.\n\n{num1} + {num2}", color=core_color)
-    mathsEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-    await ctx.send(embed=mathsEmbed)
-    asyncio.sleep(1)
-    msg = await bot.wait_for("message")
-    if msg.content == str(result):
-        succesfulEmbed = discord.Embed(title="Maths with CORE", description="You successfully guessed the answer.", color=core_color)
-        succesfulEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-        await ctx.send(embed=succesfulEmbed)
-    else:
-        failureEmbed = discord.Embed(title="Maths with CORE", description="Answer was incorrect.", color=core_color)
-        failureEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-        await ctx.send(embed=failureEmbed)
+async def maths(ctx, arg="practise", arg2="add", arg3=5, arg4=91):
+    if arg == "practise":
+        num1 = randint(100, 1000)
+        num2 = randint(1000, 5000)
+        result = num1 + num2
+        mathsEmbed = discord.Embed(title="Maths with CORE", description=f"Work out this calculation and say it in chat.\n\n{num1} + {num2}", color=core_color)
+        mathsEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=mathsEmbed)
+        msg = await bot.wait_for("message")
+        if msg.content == str(result):
+            succesfulEmbed = discord.Embed(title="Maths with CORE", description="You successfully guessed the answer.", color=core_color)
+            succesfulEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=succesfulEmbed)
+        else:
+            failureEmbed = discord.Embed(title="Maths with CORE", description="Answer was incorrect.", color=core_color)
+            failureEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=failureEmbed)
+    elif arg == "operation":
+        if arg2 == "add":
+            number = arg3 + arg4
+            addEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
+            addEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=addEmbed)
+        if arg2 == "minus" or arg2 == "subtract":
+            number = arg3 - arg4
+            subtractEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
+            subtractEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=subtractEmbed)
+        if arg2 == "multiply" or arg2 == "times":
+            number = arg3 * arg4
+            multiplyEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
+            multiplyEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=multiplyEmbed)
+        if arg2 == "divide" or arg2 == "share":
+            number = arg3 / arg4
+            divideEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
+            divideEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=divideEmbed)
 
 @bot.command()
 @has_permissions(manage_messages=True) 
@@ -371,7 +403,7 @@ async def help(ctx):
     helpEmbed.add_field(name="!maths", value="A maths game where you need to work out the answer for a random calculation!", inline=False)
     helpEmbed.add_field(name="!random", value="Chooses a random user and says that they are the chosen one", inline=False)
     helpEmbed.add_field(name="!purge", value="To clear a selected amount of messages in that channel", inline=False)
-    helpEmbed.add_field(name="!update", value="Specifies the most recent update for CORE", inline=False)
+    helpEmbed.add_field(name="!version", value="Specifies the most recent update for CORE", inline=False)
     helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=False)
     helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=False)
     helpEmbed.add_field(name="!announce", value="Announces a message in the announcement channel", inline=False)
@@ -385,8 +417,8 @@ async def help(ctx):
     await ctx.send(embed=helpEmbed)
 
 @bot.command()
-async def update(ctx):
-    updateEmbed = discord.Embed(title="Most recent update:", description="- Fixed MeaxisNetwork Commands.", color=core_color)
+async def version(ctx):
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.0.5\n\n- Re-done Maths Command\n      - Added ability to input your own numbers and do add, subtract, multiply and divide operations\n\n      - Added a practise mode where you can test your maths skills.\n", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
