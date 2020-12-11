@@ -131,6 +131,7 @@ async def run(ctx, *, cmd):
             await ctx.send(f'CORE could not execute an invalid command --> {cmd}')
 
 
+
 @bot.command()
 @has_permissions(manage_messages=True)
 async def mute(ctx, member: discord.Member):
@@ -377,11 +378,33 @@ async def categories(ctx):
     f.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=f)
 
+def is_in_guild(guild_id):
+    async def predicate(ctx):
+        return ctx.guild and ctx.guild.id == guild_id
+    return commands.check(predicate)
+
+@bot.command()
+@is_in_guild(722195079262896239)
+async def verify(ctx):
+	member = ctx.message.author
+	role = get(member.server.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+	if role in member.roles:
+		embed = discord.Embed(title="Verification", description="You are already verified. No roles have been added.", color=core_color)
+		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+		await ctx.send(embed=embed)
+	else:
+		await member.add_roles(role)
+		embed = discord.Embed(title="Verification", color=core_color)
+		embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+		await ctx.send(embed=embed)
+
+
 
 @bot.command()
 async def random(ctx):
     randomMember = choice(ctx.guild.members)
-    await ctx.send(f'{randomMember.mention} is the chosen one!')
+    await ctx.send(f'{randomMember.mention} has been chosen.')
 
 @bot.command()
 async def help(ctx):
