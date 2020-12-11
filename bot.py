@@ -25,17 +25,6 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="with CORE"))
     bot.load_extension(f'extensions.dbl')
 
-@bot.event
-async def on_message(message):
-	if message.guild.id == 722195079262896239:
-		if "phrog" in message.content.lower():
-			await message.channel.purge(limit=1)
-			await message.channel.send(f"{message.author.mention} Your message has been censored for: 'Word not permitted in our community.'")
-		await bot.process_commands(message)
-	else:
-		await bot.process_commands(message)
-
-
 @bot.command()
 async def load(ctx, extension):
     extensionLowered = extension.lower()
