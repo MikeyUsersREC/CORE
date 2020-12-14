@@ -9,6 +9,7 @@ from random import randint, choice
 from discord.ext.commands import CheckFailure, has_role, has_permissions
 from discord.utils import get
 import requests
+import logging
 import json
 
 # Creation & Configuration
@@ -25,12 +26,24 @@ debug_mode = False
 meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
 announcement_channel = "announcements"
 
+# Logging
+
+logging.basicConfig(level=logging.WARNING)
+
 # Events
 
 @bot.event
 async def on_ready():
+    member_count_all = 0
     print("Bot online!")
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
+    print("___________")
+    print("Bot Stats")
+    print("___________")
+    print(f"{str(len(bot.guilds))} Servers")
+    for guild in bot.guilds:
+        member_count_all += guild.member_count
+    print(f"{member_count_all} Members")
     bot.loop.create_task(status_change())
     bot.load_extension(f'extensions.dbl')
 
@@ -458,6 +471,7 @@ async def verify(ctx):
 
 
 
+
 @bot.command()
 async def random(ctx):
     randomMember = choice(ctx.guild.members)
@@ -487,7 +501,7 @@ async def help(ctx):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.0.6\n\n- Debug Mode\n\n      - Added a range of statuses for the bot to roll through.\n\n      - Properly established random command, useful for giveaways.\n", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.0.7\n\n- Minor Changes\n\n      - Added a console logging system\n\n      - Member and Server Stats printed on CORE Startup.\n", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
