@@ -1,29 +1,62 @@
-from discord.ext import commands
+# Importing Packages
+
+from datetime import datetime
+from discord.ext import commands, tasks
 import discord
-bot = commands.Bot(command_prefix='!' , description=None)
 import os
-bot.remove_command("help")
-from random import choice
 import asyncio
-from random import randint
-from discord.ext.commands import CheckFailure
-from discord.ext.commands import has_role
-from discord.ext.commands import has_permissions
+from random import randint, choice
+from discord.ext.commands import CheckFailure, has_role, has_permissions
 from discord.utils import get
 import requests
 import json
 
+# Creation & Configuration
+
+bot = commands.Bot(command_prefix='!' , description=None)
+bot.remove_command("help")
+
+# Variables
+
 token = "NzM0NDk1NDg2NzIzMjI3NzYw.XxSiOg.3B_xKd3mkEOavNHMrXaMX0HN_04"
 core_color = discord.Color.from_rgb(30, 144, 255)
+mn_color = discord.Color.from_rgb(35, 35, 35)
+debug_mode = False
+meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
 announcement_channel = "announcements"
 
+# Events
 
 @bot.event
 async def on_ready():
     print("Bot online!")
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
-    await bot.change_presence(activity=discord.Game(name="with CORE"))
+    bot.loop.create_task(status_change())
     bot.load_extension(f'extensions.dbl')
+
+@bot.event
+async def on_command_error(ctx, error):
+	if debug_mode == True:
+		await ctx.send(str(error))
+	else:
+		print(str(error))
+
+# Status
+
+async def status_change():
+	while True:
+		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "to commands"]
+		statusChosen = choice(statusTable)
+		if statusChosen != "over CORE Support" and statusChosen != "to commands":
+			await bot.change_presence(activity=discord.Game(name=statusChosen))
+		elif statusChosen == "over CORE Support":
+			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=statusChosen))
+		else:
+			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=statusChosen))
+		await asyncio.sleep(10)
+
+
+# Commands
 
 @bot.command()
 async def load(ctx, extension):
@@ -49,9 +82,16 @@ async def invite(ctx):
 async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
+@bot.command()
+async def debug(ctx, arg1):
+	if arg1 == "on":
+		global debug_mode
+		debug_mode = True
+	else:
+		debug_mode = False
 
-mn_color = discord.Color.from_rgb(35, 35, 35)
-meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
+
+# MeaxisNetwork Commands
 
 @bot.command()
 async def profile(ctx):
@@ -207,6 +247,8 @@ async def rps(ctx, arg):
     elif arg.lower() == "scissors":
         embed.description = "Rock!"
     await ctx.send(embed=embed)
+
+# Announcement Commands
 
 @bot.command()
 async def set(ctx,*,channel):
@@ -385,6 +427,21 @@ def is_in_guild(guild_id):
 
 @bot.command()
 @is_in_guild(722195079262896239)
+@has_role("[-] 𝙎𝙩𝙖𝙛𝙛")
+async def duty(ctx, arg1="On-Duty"):
+	channel = discord.utils.get(ctx.message.channel.guild.text_channels , name="on-duty")
+	embed = discord.Embed(title="Duty Changed", color=core_color)
+	embed.add_field(name="Name", value=ctx.author.name, inline=True)
+	if arg1.lower() == "off" or arg1 == "off-duty":
+		embed.add_field(name="Status", value="Off-Duty", inline=True)
+	else:
+		embed.add_field(name="Status", value="On-Duty", inline=True)
+	embed.add_field(name="Time", value=f"{datetime.utcnow()}")
+	embed.set_thumbnail(url=str(ctx.message.author.avatar_url))
+	await channel.send(embed=embed)
+
+@bot.command()
+@is_in_guild(722195079262896239)
 async def verify(ctx):
 	member = ctx.message.author
 	role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
@@ -423,14 +480,14 @@ async def help(ctx):
     helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=False)
     helpEmbed.add_field(name="!categories", value="Specifies the available announcement categories", inline=False)
     helpEmbed.add_field(name="!info", value="Specifies information about a certain member", inline=False)
-    helpEmbed.add_field(name="!support", value="Specifies the support server.", inline=False)
+    helpEmbed.add_field(name="!support" ,value="Specifies the support server.", inline=False)
     helpEmbed.add_field(name="!invite", value="Allows you to invite the bot.", inline=False)
     helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=helpEmbed)
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.0.5\n\n- Re-done Maths Command\n\n      - Added ability to input your own numbers and do add, subtract, multiply and divide operations\n\n      - Added a practise mode where you can test your maths skills.\n", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.0.6\n\n- Debug Mode\n\n      - Added a range of statuses for the bot to roll through.\n\n      - Properly established random command, useful for giveaways.\n", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
@@ -439,14 +496,5 @@ async def version(ctx):
 async def purge(ctx, amount=15):
     new_amount = amount + 1
     await ctx.channel.purge(limit=new_amount)
-
-@announce.error
-async def announce_error(ctx, error):
-    if isinstance(error, CheckFailure):
-        errorEmbed = discord.Embed(title="Something went wrong.", description="Something went wrong. The permission 'Manage Server' is required to run this command.", color= discord.Color.from_rgb(255, 0, 0))
-        await ctx.send("", embed=errorEmbed)
-    else:
-        raise error
-
 
 bot.run(token)
