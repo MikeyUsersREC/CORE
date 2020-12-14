@@ -45,7 +45,7 @@ async def on_command_error(ctx, error):
 
 async def status_change():
 	while True:
-		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
+		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "to commands"]
 		statusChosen = choice(statusTable)
 		if statusChosen != "over CORE Support" and statusChosen != "to commands":
 			await bot.change_presence(activity=discord.Game(name=statusChosen))
@@ -455,6 +455,7 @@ async def verify(ctx):
 		embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
+
 
 
 
