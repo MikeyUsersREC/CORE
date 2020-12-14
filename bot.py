@@ -35,17 +35,17 @@ logging.basicConfig(level=logging.WARNING)
 @bot.event
 async def on_ready():
 	member_count_all = 0
-    print("Bot online!")
-    print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
-    print("___________")
-    print("Bot Stats")
-    print("___________")
-    print(f"{str(len(bot.guilds))} Servers")
-    for guild in bot.guilds:
-        member_count_all += guild.member_count
-    print(f"{member_count_all} Members")
-    bot.loop.create_task(status_change())
-    bot.load_extension(f'extensions.dbl')
+	print("Bot online!")
+	print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
+	print("___________")
+	print("Bot Stats")
+	print("___________")
+	print(f"{str(len(bot.guilds))} Servers")
+	for guild in bot.guilds:
+		member_count_all += guild.member_count
+	print(f"{member_count_all} Members")
+	bot.loop.create_task(status_change())
+	bot.load_extension(f'extensions.dbl')
 
 @bot.event
 async def on_command_error(ctx, error):
