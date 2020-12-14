@@ -45,7 +45,7 @@ async def on_command_error(ctx, error):
 
 async def status_change():
 	while True:
-		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "to commands"]
+		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
 		statusChosen = choice(statusTable)
 		if statusChosen != "over CORE Support" and statusChosen != "to commands":
 			await bot.change_presence(activity=discord.Game(name=statusChosen))
