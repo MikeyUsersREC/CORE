@@ -11,10 +11,14 @@ from discord.utils import get
 import requests
 import logging
 import json
+import string
 
 # Creation & Configuration
 
-bot = commands.Bot(command_prefix='!' , description=None)
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix='!' , description=None, intents=intents)
 bot.remove_command("help")
 
 # Variables
@@ -22,10 +26,7 @@ bot.remove_command("help")
 token = "NzM0NDk1NDg2NzIzMjI3NzYw.XxSiOg.m8r2Znmr4sLqf5dr7k9FX4jdgE0"
 core_color = discord.Color.from_rgb(30, 144, 255)
 mn_color = discord.Color.from_rgb(35, 35, 35)
-debug_mode = False
 meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
-announcement_channel = "announcements"
-
 # Logging
 
 logging.basicConfig(level=logging.WARNING)
@@ -43,24 +44,32 @@ async def on_ready():
 	print(f"{str(len(bot.guilds))} Servers")
 	for guild in bot.guilds:
 		member_count_all += guild.member_count
+
+	with open("info.json", "r") as info:
+		global data
+		data = json.load(info)
+
 	print(f"{member_count_all} Members")
 	bot.loop.create_task(status_change())
 	bot.load_extension(f'extensions.dbl')
 
 @bot.event
 async def on_command_error(ctx, error):
-	if debug_mode == True:
+	with open("info.json", "r") as f:
+		info_data = json.load(f)
+
+	if info_data[str(ctx.guild.id)]["debug_mode"] == True:
 		await ctx.send(str(error))
-	else:
+	elif info_data[str(ctx.guild.id)]["debug_mode"] == False:
 		print(str(error))
 
 # Status
 
 async def status_change():
 	while True:
-		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "to commands"]
+		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
 		statusChosen = choice(statusTable)
-		if statusChosen != "over CORE Support" and statusChosen != "to commands":
+		if statusChosen != "over CORE Support" and statusChosen != "commands":
 			await bot.change_presence(activity=discord.Game(name=statusChosen))
 		elif statusChosen == "over CORE Support":
 			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=statusChosen))
@@ -96,14 +105,74 @@ async def unload(ctx, extension):
     bot.unload_extension(f'extensions.{extension}')
 
 @bot.command()
-async def debug(ctx, arg1):
-	if arg1 == "on":
-		global debug_mode
-		debug_mode = True
-	else:
-		debug_mode = False
+@has_permissions(manage_guild=True)
+async def config(ctx, arg1=None, arg2=None):
+	if arg1 == "debug":
+		if arg2 == "on":
+			with open("info.json", "r") as f:
+				data = json.load(f)
 
+			data[str(ctx.guild.id)]["debug_mode"] = True
 
+			with open("info.json", "w") as f:
+				json.dump(data, f, indent=2)
+			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+
+		elif arg2 == "off":
+			with open("info.json", "r") as f:
+				data = json.load(f)
+
+			data[str(ctx.guild.id)]["debug_mode"] = False
+
+			with open("info.json", "w") as f:
+				json.dump(data, f, indent=2)
+
+			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+
+	if arg1 == "manualverification":
+		if arg2 == "on" or arg2 == "true":
+			with open("info.json", "r") as f:
+				data = json.load(f)
+
+			data[str(ctx.guild.id)]["manualverification"] = True
+
+			with open("info.json", "w") as f:
+				json.dump(data, f, indent=2)
+			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+		else:
+			with open("info.json", "r") as f:
+				data = json.load(f)
+
+			data[str(ctx.guild.id)]["manualverification"] = False
+
+			with open("info.json", "w") as f:
+				json.dump(data, f, indent=2)
+			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+
+	if arg1 == "announcement_channel":
+		with open("info.json", "r") as f:
+			data = json.load(f)
+
+		data[str(ctx.guild.id)][announcement_channel] = arg2
+
+		with open("info.json", "w") as f:
+			json.dump(data, f, indent=2)
+		embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+		await ctx.send(embed=embed)
+
+	if arg1 is None and arg2 is None:
+		embed = discord.Embed(title="Configuration", description="**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers that support it.\n\n**announcement_channel** | Sets the announcement channel.", color=core_color)
+		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+		await ctx.send(embed=embed)
 # MeaxisNetwork Commands
 
 @bot.command()
@@ -264,149 +333,135 @@ async def rps(ctx, arg):
 # Announcement Commands
 
 @bot.command()
-async def set(ctx,*,channel):
-    global announcement_channel
-    announcement_channel = channel
-    embed = discord.Embed(title="Successfully Changed", description="The announcement channel has been changed.", color=core_color)
-    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-    await ctx.send(embed=embed)
-
-@bot.command()
 @has_permissions(manage_channels=True) 
 async def announce(ctx):
-    channel = ctx.message.channel
-    announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
-    areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?" ,
-                                 color=core_color)
-    await ctx.send("" , embed=areSureEmbed)
+	with open("info.json", "r") as f:
+		data = json.load(f)
 
-    def check(m):
-        return m.channel == channel and m.author == ctx.message.author
+	announcement_channel = data[str(ctx.guild.id)]["announcement_channel"]
+	channel = ctx.message.channel
+	announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
+	areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?", color=core_color)
+	await ctx.send("" , embed=areSureEmbed)
 
-    try:
-        msg = await bot.wait_for('message' , check=check , timeout=120)
-        if msg.content == "cancel":
-            cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
+	def check(m):
+		return m.channel == channel and m.author == ctx.message.author
+	try:
+		msg = await bot.wait_for('message' , check=check , timeout=120)
+		if msg.content == "cancel":
+			cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
                                             color=core_color)
-            await channel.send("" , embed=cancelEmbed)
-            return
-        CategoryEmbed = discord.Embed(title="Announcement" ,
-                                                     description="What catgegory is your announcement? Categories: information, warning, important",
+			await channel.send("" , embed=cancelEmbed)
+			return
+			CategoryEmbed = discord.Embed(title="Announcement" ,
+                                                 	description="What catgegory is your announcement? Categories: information, warning, important",
                                                      color=core_color)
 
-        await channel.send(''.format(msg) , embed=CategoryEmbed)
-    except asyncio.TimeoutError:
-        TimeoutEmbed = discord.Embed(title="Timeout!" ,
-                                         description="You have reached the 120 second timeout! Please send another command if you want to continue!" ,
-                                         color=core_color)
-        await channel.send("" , embed=TimeoutEmbed)
-
-    def yesCheck(m):
-        return m.channel == channel and m.author == ctx.message.author
-    try:
-        categoryMsg = await bot.wait_for('message' , check=check , timeout=120)
-        if msg.content == "cancel":
-            cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
-                                            color=core_color)
-            await channel.send("" , embed=cancelEmbed)
-            return
-        SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
+		await channel.send(''.format(msg) , embed=CategoryEmbed)
+	except asyncio.TimeoutError:
+		TimeoutEmbed = discord.Embed(title="Timeout!", description="You have reached the 120 second timeout! Please send another command if you want to continue!" , color=core_color)
+		await ctx.send(embed=TimeoutEmbed)
+		def yesCheck(m):
+			return m.channel == channel and m.author == ctx.message.author
+		try:
+			categoryMsg = await bot.wait_for('message' , check=check , timeout=120)
+			if msg.content == "cancel":
+				cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!", color=core_color)
+				await channel.send("" , embed=cancelEmbed)
+				return
+			SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
                                                      description="Are you sure you want to send this announcement?\n\n" + msg.content ,
                                                      color=core_color)
-
-        await channel.send(''.format(msg) , embed=SendingAnnouncementEmbed)
-    except asyncio.TimeoutError:
-        TimeoutEmbed = discord.Embed(title="Timeout!" ,
+			await channel.send(''.format(msg) , embed=SendingAnnouncementEmbed)
+		except asyncio.TimeoutError:
+			TimeoutEmbed = discord.Embed(title="Timeout!" ,
                                          description="You have reached the 120 second timeout! Please send another command if you want to continue!" ,
                                          color=core_color)
-        await channel.send("" , embed=TimeoutEmbed)
-    try:
-        Message = await bot.wait_for('message' , check=yesCheck , timeout=120)
-        if Message.content == "cancel" or Message.content == "no":
-            cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
+		await channel.send("" , embed=TimeoutEmbed)
+	try:
+		Message = await bot.wait_for('message' , check=yesCheck , timeout=120)
+		if Message.content == "cancel" or Message.content == "no":
+			cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
                                             color=core_color)
-            await channel.send("" , embed=cancelEmbed)
-            return
-        if categoryMsg.content == "placeholder":
-            AnnouncementEmbed = discord.Embed(title="CORE | Information" , description=msg.content ,
+			await channel.send("" , embed=cancelEmbed)
+			return
+		if categoryMsg.content == "placeholder":
+			AnnouncementEmbed = discord.Embed(title="CORE | Information" , description=msg.content ,
 
                                               color=core_color)
-            AnnouncementEmbed.set_thumbnail(
+			AnnouncementEmbed.set_thumbnail(
                 url="https://media.discordapp.net/attachments/733628287548653669/754109649074257960/768px-Logo_informations.png?width=468&height=468")
 
-        elif categoryMsg.content == "information":
-            AnnouncementEmbed = discord.Embed(title="CORE | Information" , description=msg.content ,
+		elif categoryMsg.content == "information":
+			AnnouncementEmbed = discord.Embed(title="CORE | Information" , description=msg.content ,
 
                                               color=discord.Color.from_rgb(0 , 0 , 255))
-            AnnouncementEmbed.set_thumbnail(
+			AnnouncementEmbed.set_thumbnail(
                 url="https://media.discordapp.net/attachments/733628287548653669/754109649074257960/768px-Logo_informations.png?width=468&height=468")
-
-        elif categoryMsg.content == "important":
-            AnnouncementEmbed = discord.Embed(title=":loudspeaker: Important Announcement" , description=msg.content ,
+		if categoryMsg.content == "important":
+			AnnouncementEmbed = discord.Embed(title=":loudspeaker: Important Announcement" , description=msg.content ,
 
                                               color=discord.Color.from_rgb(255 , 0 , 0))
-            AnnouncementEmbed.set_thumbnail(
+			AnnouncementEmbed.set_thumbnail(
                 url="https://cdn.discordapp.com/emojis/746034342303891585.png?v=1")
-        elif categoryMsg.content == "warning":
-            AnnouncementEmbed = discord.Embed(title=":warning: Warning Announcement" , description=msg.content ,
+		elif categoryMsg.content == "warning":
+			AnnouncementEmbed = discord.Embed(title=":warning: Warning Announcement" , description=msg.content ,
 
                                               color=discord.Color.from_rgb(252, 206, 0))
-            await announcements.send("", embed=AnnouncementEmbed)
-            return
-        elif categoryMsg.content == "critical":
-            if ctx.message.author.id == 635119023918415874:
-                AnnouncementEmbed = discord.Embed(title=":no_entry_sign: | Critical Announcement" ,
+			await announcements.send("", embed=AnnouncementEmbed)
+			return
+		elif categoryMsg.content == "critical":
+			if ctx.message.author.id == 635119023918415874:
+				AnnouncementEmbed = discord.Embed(title=":no_entry_sign: | Critical Announcement" ,
                                                   description=msg.content ,
 
                                                   color=discord.Color.from_rgb(255 , 0 , 0))
-            else:
-                UnauthorisedUseOfCritical = discord.Embed(title=":no_entry_sign: You are unauthorised to use this category.", description="You are not authorised to use this category, please use another category, this category can only be used by the Bot Developer.", color= discord.Color.from_rgb(255, 0, 0))
-                await ctx.send("", embed=UnauthorisedUseOfCritical)
-                return
-        elif categoryMsg.content == "developmentWithPing":
-            if ctx.message.author.id == 635119023918415874:
-                TestingEmbed = discord.Embed(title=":construction:  Development Announcement" ,
+			else:
+				UnauthorisedUseOfCritical = discord.Embed(title=":no_entry_sign: You are unauthorised to use this category.", description="You are not authorised to use this category, please use another category, this category can only be used by the Bot Developer.", color= discord.Color.from_rgb(255, 0, 0))
+				await ctx.send("", embed=UnauthorisedUseOfCritical)
+				return
+		elif categoryMsg.content == "developmentWithPing":
+			if ctx.message.author.id == 635119023918415874:
+				TestingEmbed = discord.Embed(title=":construction:  Development Announcement" ,
                                                   description=msg.content ,
 
                                                   color=discord.Color.from_rgb(255, 145, 0))
-                await announcements.send("@everyone", embed=TestingEmbed)
-                return
-            else:
-                PleaseTryAgain = discord.Embed(title="Error:" ,
+				await announcements.send("@everyone", embed=TestingEmbed)
+				return
+			else:
+				PleaseTryAgain = discord.Embed(title="Error:" ,
                                                description="You did not put the one of the valid categories available for this announcement, please try again." ,
                                                color=discord.Color.from_rgb(255 , 0 , 0))
-                await ctx.send("" , embed=PleaseTryAgain)
-                return
-        elif categoryMsg.content == "development":
-            if ctx.message.author.id == 635119023918415874:
-                TestingEmbed = discord.Embed(title=":construction:  Development Announcement" ,
+				await ctx.send("" , embed=PleaseTryAgain)
+				return
+		elif categoryMsg.content == "development":
+			if ctx.message.author.id == 635119023918415874:
+				TestingEmbed = discord.Embed(title=":construction:  Development Announcement" ,
                                              description=msg.content ,
 
                                              color=discord.Color.from_rgb(255 , 145 , 0))
-                await announcements.send("" , embed=TestingEmbed)
-                return
-            else:
-                PleaseTryAgain = discord.Embed(title="Error:" ,
-                                               description="You did not put the one of the valid categories available for this announcement, please try again." ,
-                                               color=discord.Color.from_rgb(255 , 0 , 0))
-                await ctx.send("" , embed=PleaseTryAgain)
-                return
-
-
-        else:
-            PleaseTryAgain = discord.Embed(title="Error:", description="You did not put the one of the valid categories available for this announcement, please try again.", color= discord.Color.from_rgb(255, 0, 0))
-            await ctx.send("", embed=PleaseTryAgain)
-            return
-        SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
+				await announcements.send("" , embed=TestingEmbed)
+				return
+			else:
+				PleaseTryAgain = discord.Embed(title="Error:" ,
+											description="You did not put the one of the valid categories available for this announcement, please try again." ,
+                                            color=discord.Color.from_rgb(255 , 0 , 0))
+				await ctx.send("" , embed=PleaseTryAgain)
+				return
+		else:
+			PleaseTryAgain = discord.Embed(title="Error:", description="You did not put the one of the valid categories available for this announcement, please try again.", color= discord.Color.from_rgb(255, 0, 0))
+			await ctx.send("", embed=PleaseTryAgain)
+			return
+			SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
                                                      description="Sending announcement...\n\n" + msg.content ,
                                                      color=core_color)
-        await channel.send(''.format(msg) , embed=SendingAnnouncementEmbed)
-        await announcements.send("@everyone" , embed=AnnouncementEmbed)
-    except asyncio.TimeoutError:
-        TimeoutEmbed = discord.Embed(title="Timeout!" ,
+			await channel.send(''.format(msg) , embed=SendingAnnouncementEmbed)
+		await announcements.send("@everyone" , embed=AnnouncementEmbed)
+	except asyncio.TimeoutError:
+		TimeoutEmbed = discord.Embed(title="Timeout!" ,
                                          description="You have reached the 120 second timeout! Please send another command if you want to continue!" ,
                                          color=core_color)
-        await channel.send("" , embed=TimeoutEmbed)
+		await channel.send("" , embed=TimeoutEmbed)
 
 @bot.command()
 @has_permissions(kick_members=True) 
@@ -454,54 +509,103 @@ async def duty(ctx, arg1="On-Duty"):
 	await channel.send(embed=embed)
 
 @bot.command()
-@is_in_guild(722195079262896239)
 async def verify(ctx):
-	member = ctx.message.author
-	role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
-	if role in member.roles:
-		embed = discord.Embed(title="Verification", description="You are already verified. No roles have been added.", color=core_color)
+	with open("info.json", "r") as f:
+		info_data = json.load(f)
+
+	if info_data[str(ctx.guild.id)]["manualverification"] == False:
+		member = ctx.message.author
+		role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+		if role in member.roles:
+			embed = discord.Embed(title="Verification", description="You are already verified. No roles have been added.", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+		else:
+			await member.add_roles(role)
+			embed = discord.Embed(title="Verification", color=core_color)
+			embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+	elif info_data[str(ctx.guild.id)]["manualverification"] == True:
+		member = ctx.message.author
+		role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+		letters = string.ascii_lowercase
+		result_str = ''.join(choice(letters) for i in range(20))
+		embed = discord.Embed(title="Manual Verification", description=f"Please type this code in chat:\n\n{result_str}", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
-	else:
-		await member.add_roles(role)
-		embed = discord.Embed(title="Verification", color=core_color)
-		embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
-		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-		await ctx.send(embed=embed)
+		try:
+			Message = await bot.wait_for('message', timeout=300)
+			if Message.content.lower() == str(result_str):
+				if role in member.roles:
+					embed = discord.Embed(title="Verification", description="You are already verified. No roles have been added.", color=core_color)
+					embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+					await ctx.send(embed=embed)
+				else:
+					await member.add_roles(role)
+					embed = discord.Embed(title="Verification", color=core_color)
+					embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+					embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+					await ctx.send(embed=embed)	
 
 
-
+		except asyncio.TimeoutError:
+			TimeoutEmbed = discord.Embed(title="Timeout!",	description="You have reached the 300 second timeout! Please send another command if you want to continue!", color=core_color)
+			await ctx.send(embed=TimeoutEmbed)
 
 @bot.command()
-async def random(ctx):
-    randomMember = choice(ctx.guild.members)
-    await ctx.send(f'{randomMember.mention} has been chosen.')
+async def countdown(ctx, time):
+    if str(time).endswith("s"):
+        timeList = time.split("s")
+        timeDown = int(timeList[0])
+    elif str(time).endswith("m"):
+        timeList = time.split("m")
+        timeDown = int(timeList[0]) * 60
+    elif str(time).endswith("h"):
+        timeList = time.split("h")
+        timeDown = int(timeList[0]) * 60 * 60
+    else:
+        return
+    await asyncio.sleep(timeDown)
+    embed = discord.Embed(title="Timer is up", description=f"The timer you set for {time} has ended.")
+    embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    await ctx.send(f"{ctx.author.mention}", embed=embed)
+    return
+
+@bot.command()
+async def roll(ctx):
+    randomMember = choice(ctx.author.guild.members)
+    if randomMember != bot.user:
+    	await ctx.send(f'{randomMember.mention} has been chosen.')
+    else:
+    	randomMember = choice(ctx.author.guild.members)
 
 @bot.command()
 async def help(ctx):
     helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
     helpEmbed.set_footer(text="CORE | Help")
-    helpEmbed.add_field(name="!help", value="Help Command for CORE", inline=False)
-    helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=False)
-    helpEmbed.add_field(name="!maths", value="A maths game where you need to work out the answer for a random calculation!", inline=False)
-    helpEmbed.add_field(name="!random", value="Chooses a random user and says that they are the chosen one", inline=False)
-    helpEmbed.add_field(name="!purge", value="To clear a selected amount of messages in that channel", inline=False)
-    helpEmbed.add_field(name="!version", value="Specifies the most recent update for CORE", inline=False)
-    helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=False)
-    helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=False)
-    helpEmbed.add_field(name="!announce", value="Announces a message in the announcement channel", inline=False)
-    helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=False)
-    helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=False)
-    helpEmbed.add_field(name="!categories", value="Specifies the available announcement categories", inline=False)
-    helpEmbed.add_field(name="!info", value="Specifies information about a certain member", inline=False)
-    helpEmbed.add_field(name="!support" ,value="Specifies the support server.", inline=False)
-    helpEmbed.add_field(name="!invite", value="Allows you to invite the bot.", inline=False)
+    helpEmbed.add_field(name="!help", value="Help Command", inline=True)
+    helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=True)
+    helpEmbed.add_field(name="!maths", value="A maths game", inline=True)
+    helpEmbed.add_field(name="!roll", value="Chooses a random user", inline=True)
+    helpEmbed.add_field(name="!purge", value="To clear messages", inline=True)
+    helpEmbed.add_field(name="!version", value="Recent update for CORE", inline=True)
+    helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=True)
+    helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=True)
+    helpEmbed.add_field(name="!config", value="Changes the server configuration", inline=True)
+    helpEmbed.add_field(name="!announce", value="Announces a message", inline=True)
+    helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=True)
+    helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=True)
+    helpEmbed.add_field(name="!categories", value="Specifies the announce categories", inline=True)
+    helpEmbed.add_field(name="!info", value="Information about a member", inline=True)
+    helpEmbed.add_field(name="!support" ,value="Specifies the support server.", inline=True)
+    helpEmbed.add_field(name="!invite", value="Invite the bot.", inline=True)
     helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=helpEmbed)
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.0.7\n\n- Minor Changes\n\n      - Added a console logging system\n\n      - Member and Server Stats printed on CORE Startup.\n", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.0\n\n- New countdown command which you can make the bot countdown for an amount of seconds, minutes or hours. It will ping you with an embed when it is done with the countdown so that you are notified the timer had ended.\n\n- Spelling Corrected in announce command.\n\n      - Added member intents so that roll command works.\n\n      - Random replaced with !roll.\n\n- Help Command has been redone.\n\n- Added server configuration options with local changes to that server rather than global changes.\n\n- Verification system changed to support a 'lockdown' manual verification system to prevent bots getting through verification to add an optional setting for servers so that people who verify need to enter a randomly generated code inside the chat.\n\n- You can now choose your server's announce channel with the config command. It is active on your server and stored with JSON alongside all other configurations. Default announcement channel is: announcements. Make sure to not include the hashtag whilst doing the configuration for the announce command else it will fail.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
