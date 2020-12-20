@@ -37,9 +37,9 @@ async def on_ready():
     member_count_all = 0
     print("Bot online!")
     print("Logged into " + bot.user.name + "#" + bot.user.discriminator + "!")
-    print("___________")
+    print("___________\n")
     print("Bot Stats")
-    print("___________")
+    print("\n___________")
     print(f"{str(len(bot.guilds))} Servers")
     for guild in bot.guilds:
         member_count_all += guild.member_count
@@ -49,8 +49,10 @@ async def on_ready():
         data = json.load(info)
 
     for guild in bot.guilds:
-        if data[str(guild.id)] is None:
-            data[str(guild.id)] = {"manualverification": False, "debug_mode": False, "announcement_channel": "announcements"}
+        if str(guild.id) not in data:
+            data[str(guild.id)] = {"manualverification": False, "debug_mode": False, "announcement_channel": "announcements", "verification_role": None, "link_automoderation": False}
+            print(f"{guild.name} | {guild.id} | Added to JSON.")
+
 
     with open("info.json", "w") as info:
         json.dump(data, info, indent=2)
@@ -60,6 +62,7 @@ async def on_ready():
     bot.load_extension(f'extensions.dbl')
 
     for guild in bot.guilds:
+
         print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
 @bot.event
@@ -75,7 +78,24 @@ async def on_command_error(ctx, error):
         embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=embed)
-# Statu
+
+
+@bot.event
+async def on_message(message):
+    if message.author.bot == False:
+        with open("info.json", "r") as f:
+            info_data = json.load(f)
+
+        if info_data[str(message.guild.id)]["link_automoderation"]:
+            if "https://" in message.content or "discord.gg/" in message.content:
+                if message.author.guild_permissions.manage_guild:
+                    await bot.process_commands(message)
+                else:
+                    await message.channel.purge(limit=1)
+    
+    await bot.process_commands(message)
+
+# Status
 
 async def status_change():
     while True:
@@ -118,7 +138,7 @@ async def unload(ctx, extension):
 
 @bot.command()
 @has_permissions(manage_guild=True)
-async def config(ctx, arg1=None, arg2=None):
+async def config(ctx, arg1=None, *, arg2=None):
     if arg1 == "debug":
         if arg2 == "on":
             with open("info.json", "r") as f:
@@ -173,7 +193,7 @@ async def config(ctx, arg1=None, arg2=None):
         with open("info.json", "r") as f:
             data = json.load(f)
 
-        data[str(ctx.guild.id)][announcement_channel] = arg2
+        data[str(ctx.guild.id)]["announcement_channel"] = arg2
 
         with open("info.json", "w") as f:
             json.dump(data, f, indent=2)
@@ -181,8 +201,47 @@ async def config(ctx, arg1=None, arg2=None):
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=embed)
 
+    if arg1 == "verification_role":
+        with open("info.json", "r") as f:
+            data = json.load(f)
+
+        data[str(ctx.guild.id)]["verification_role"] = arg2
+
+        with open("info.json", "w") as f:
+            json.dump(data, f, indent=2)
+
+        embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=embed)
+
+    if arg1 == "link_automoderation":
+        if arg2 == "on":
+            with open("info.json", "r") as f:
+                data = json.load(f)
+
+            data[str(ctx.guild.id)]["link_automoderation"] = True
+
+            with open("info.json", "w") as f:
+                json.dump(data, f, indent=2)
+            embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=embed)
+
+        elif arg2 == "off":
+            with open("info.json", "r") as f:
+                data = json.load(f)
+
+            data[str(ctx.guild.id)]["link_automoderation"] = False
+
+            with open("info.json", "w") as f:
+                json.dump(data, f, indent=2)
+
+            embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
+            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=embed)
+
     if arg1 is None and arg2 is None:
-        embed = discord.Embed(title="Configuration", description="**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers that support it.\n\n**announcement_channel** | Sets the announcement channel.", color=core_color)
+        embed = discord.Embed(title="Configuration", description="\n\n**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers that support it.\n\n**announcement_channel** | Sets the announcement channel.\n\n**verification_role** | Sets the verification role for servers that support it.\n\n**link_automoderation** | Sets a value so that the bot can check for links.", color=core_color)
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=embed)
 # MeaxisNetwork Commands
@@ -236,8 +295,10 @@ async def funfact(ctx):
 async def leafy(ctx):
     leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
     embed = discord.Embed(title=f"Leafy API Status", color=mn_color)
-    embed.add_field(name = "Status:", value = leafyRequest.status_code, inline = False)
-    embed.add_field(name = "Note:", value = "If the status is 200, then the leafy API is online.", inline = False)
+    if leafyRequest.status_code == 200:
+        embed.add_field(name = "Status:", value ="Online", inline = False)
+    else:
+        embed.add_field(name = "Status:", value ="Offline", inline = False)
     embed.set_thumbnail(url=meaxisnetwork_url)
     await ctx.send(embed=embed)
     return
@@ -284,6 +345,9 @@ async def mute(ctx, member: discord.Member, time):
     elif str(time).endswith("h"):
         timeList = time.split("h")
         timeDown = int(timeList[0]) * 60 * 60
+    elif str(time).endswith("d"):
+        timeList = time.split("h")
+        timeDown = int(timeList[0]) * 60 * 60 * 24
     await asyncio.sleep(timeDown)
 
     await member.remove_roles(role)
@@ -298,15 +362,18 @@ async def maths(ctx, arg="practise", arg2="add", arg3=5, arg4=91):
         mathsEmbed = discord.Embed(title="Maths with CORE", description=f"Work out this calculation and say it in chat.\n\n{num1} + {num2}", color=core_color)
         mathsEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=mathsEmbed)
-        msg = await bot.wait_for("message")
-        if msg.content == str(result):
-            succesfulEmbed = discord.Embed(title="Maths with CORE", description="You successfully guessed the answer.", color=core_color)
-            succesfulEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-            await ctx.send(embed=succesfulEmbed)
-        else:
-            failureEmbed = discord.Embed(title="Maths with CORE", description="Answer was incorrect.", color=core_color)
-            failureEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-            await ctx.send(embed=failureEmbed)
+        try:
+            msg = await bot.wait_for("message")
+            if msg.content == str(result):
+                succesfulEmbed = discord.Embed(title="Maths with CORE", description="You successfully guessed the answer.", color=core_color)
+                succesfulEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+                await ctx.send(embed=succesfulEmbed)
+            else:
+                failureEmbed = discord.Embed(title="Maths with CORE", description="Answer was incorrect.", color=core_color)
+                failureEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+                await ctx.send(embed=failureEmbed)
+        except:
+            return
     elif arg == "operation":
         if arg2 == "add":
             number = arg3 + arg4
@@ -381,7 +448,7 @@ async def announce(ctx):
                                             color=core_color)
             await channel.send("" , embed=cancelEmbed)
             return
-            CategoryEmbed = discord.Embed(title="Announcement" ,
+        CategoryEmbed = discord.Embed(title="Announcement" ,
                                                     description="What catgegory is your announcement? Categories: information, warning, important",
                                                      color=core_color)
 
@@ -389,20 +456,21 @@ async def announce(ctx):
     except asyncio.TimeoutError:
         TimeoutEmbed = discord.Embed(title="Timeout!", description="You have reached the 120 second timeout! Please send another command if you want to continue!" , color=core_color)
         await ctx.send(embed=TimeoutEmbed)
-        def yesCheck(m):
-            return m.channel == channel and m.author == ctx.message.author
-        try:
-            categoryMsg = await bot.wait_for('message' , check=check , timeout=120)
-            if msg.content == "cancel":
-                cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!", color=core_color)
-                await channel.send("" , embed=cancelEmbed)
-                return
-            SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
+        return
+    def yesCheck(m):
+        return m.channel == channel and m.author == ctx.message.author
+    try:
+        categoryMsg = await bot.wait_for('message' , check=check , timeout=120)
+        if msg.content == "cancel":
+            cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!", color=core_color)
+            await channel.send("" , embed=cancelEmbed)
+            return
+        SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
                                                      description="Are you sure you want to send this announcement?\n\n" + msg.content ,
                                                      color=core_color)
-            await channel.send(''.format(msg) , embed=SendingAnnouncementEmbed)
-        except asyncio.TimeoutError:
-            TimeoutEmbed = discord.Embed(title="Timeout!" ,
+        await channel.send(''.format(msg) , embed=SendingAnnouncementEmbed)
+    except asyncio.TimeoutError:
+        TimeoutEmbed = discord.Embed(title="Timeout!" ,
                                          description="You have reached the 120 second timeout! Please send another command if you want to continue!" ,
                                          color=core_color)
         await channel.send("" , embed=TimeoutEmbed)
@@ -541,9 +609,15 @@ async def verify(ctx):
     with open("info.json", "r") as f:
         info_data = json.load(f)
 
+    verification_role = info_data[str(ctx.guild.id)]["verification_role"]
+
+    if get(ctx.guild.roles, name=verification_role) == None:
+        raise Exception("Configuration contains invalid argument.")
+        return
+
     if info_data[str(ctx.guild.id)]["manualverification"] == False:
         member = ctx.message.author
-        role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+        role = get(member.guild.roles, name=verification_role)
         if role in member.roles:
             embed = discord.Embed(title="Verification", description="You are already verified. No roles have been added.", color=core_color)
             embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
@@ -551,12 +625,12 @@ async def verify(ctx):
         else:
             await member.add_roles(role)
             embed = discord.Embed(title="Verification", color=core_color)
-            embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+            embed.add_field(name="Added Roles", value=verification_role)
             embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
             await ctx.send(embed=embed)
     elif info_data[str(ctx.guild.id)]["manualverification"] == True:
         member = ctx.message.author
-        role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+        role = get(member.guild.roles, name=verification_role)
         letters = string.ascii_lowercase
         result_str = ''.join(choice(letters) for i in range(20))
         embed = discord.Embed(title="Manual Verification", description=f"Please type this code in chat:\n\n{result_str}", color=core_color)
@@ -572,7 +646,7 @@ async def verify(ctx):
                 else:
                     await member.add_roles(role)
                     embed = discord.Embed(title="Verification", color=core_color)
-                    embed.add_field(name="Added Roles", value="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+                    embed.add_field(name="Added Roles", value=verification_role)
                     embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
                     await ctx.send(embed=embed) 
 
@@ -592,6 +666,9 @@ async def countdown(ctx, time):
     elif str(time).endswith("h"):
         timeList = time.split("h")
         timeDown = int(timeList[0]) * 60 * 60
+    elif str(time).endswith("d"):
+        timeList = time.split("d")
+        timeDown = int(timeList[0]) * 60 * 60 * 24
     else:
         return
     await asyncio.sleep(timeDown)
@@ -647,7 +724,7 @@ async def help(ctx, arg=None):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.1\n\n- Mute command now takes a time parameter.\n\n- Command information now stored in JSON.\n\n      - Redone the intents.\n\n      - Help command now has an optional command parameter so that you can lookup the description and syntax of a command.\n\n- Debug Mode now results in an embed with the error inside rather than in text.\n\n- Rock Paper Scissors bug fixed where the embed would appear but the description wouldn't.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.2\n\n- New configuration able to be edited with the config command. This configuration is the link_automoderation configuration. This enables automoderation on your server and if it sees a link and the author doesn't have the required Manage Guild previleges, the message will be deleted. The default value for this is off but you can turn it on with the config command.\n\n- New configuration able to be edited with the config command. The verification_role configuration makes it so people can verify in your server with the verify command and they will get the role that you specify here. This works in conjuction with the manualverification configuration which adds an extra layer of authentication when verifying creating a 20 character string needed to be able to gain the role. The verification_role configuration's default value is None.\n\n- The countdown and mute command now has elaborated their time parameter meaning you can set a timer or mute someone for multiple hours or days. The countdown command would be useful for scheduled events such as giveaways and you can now set timers for hours or days so that it would be more useful.\n\n      - The roll command has been modified so that the bot cannot be picked under any circumstances. This is to prevent multiple rerolls because of a bot being chosen.\n\n- Custom errors have been made for convenience whilst troubleshooting why your commands aren't working. Such example would be 'Configuration contains invalid argument'. This error means that a value you put in your configuration does not exist anymore meaning you need to reconfigure your server's settings.\n\n- Critical Maths command bug where the bot would respond to itself causing it to immediately fail has been patched out of the bot with a simple context manager fix.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
