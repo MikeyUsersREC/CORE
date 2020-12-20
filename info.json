@@ -21,8 +21,8 @@
     "announcement_channel": "announcements"
   },
   "722195079262896239": {
-    "manualverification": true,
-    "debug_mode": false,
+    "manualverification": false,
+    "debug_mode": true,
     "announcement_channel": "announcements"
   },
   "747167216612409394": {
