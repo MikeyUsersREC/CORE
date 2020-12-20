@@ -630,7 +630,7 @@ async def verify(ctx):
 			await ctx.send(embed=embed)
 	elif info_data[str(ctx.guild.id)]["manualverification"] == True:
 		member = ctx.message.author
-		role = get(member.guild.roles, name="[-] 𝙍𝙊𝘽𝙇𝙊𝙓𝙞𝙖𝙣𝙨")
+		role = get(member.guild.roles, name=verification_role)
 		letters = string.ascii_lowercase
 		result_str = ''.join(choice(letters) for i in range(20))
 		embed = discord.Embed(title="Manual Verification", description=f"Please type this code in chat:\n\n{result_str}", color=core_color)
