@@ -15,10 +15,9 @@ import string
 
 # Creation & Configuration
 
-intents = discord.Intents.default()
-intents.members = True
+intents = discord.Intents.all()
 
-bot = commands.Bot(command_prefix='!' , description=None, intents=intents)
+bot = commands.Bot(command_prefix='!' , description=None, intents=intents, case_insensitive=True)
 bot.remove_command("help")
 
 # Variables
@@ -49,9 +48,19 @@ async def on_ready():
         global data
         data = json.load(info)
 
+    for guild in bot.guilds:
+        if data[str(guild.id)] is None:
+            data[str(guild.id)] = {"manualverification": False, "debug_mode": False, "announcement_channel": "announcements"}
+
+    with open("info.json", "w") as info:
+        json.dump(data, info, indent=2)
+
     print(f"{member_count_all} Members")
     bot.loop.create_task(status_change())
     bot.load_extension(f'extensions.dbl')
+
+    for guild in bot.guilds:
+        print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -59,11 +68,14 @@ async def on_command_error(ctx, error):
         info_data = json.load(f)
 
     if info_data[str(ctx.guild.id)]["debug_mode"] == True:
-        await ctx.send(str(error))
+        embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=embed)
     elif info_data[str(ctx.guild.id)]["debug_mode"] == False:
-        print(str(error))
-
-# Status
+        embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=embed)
+# Statu
 
 async def status_change():
     while True:
@@ -256,12 +268,26 @@ async def run(ctx, *, cmd):
 
 @bot.command()
 @has_permissions(manage_messages=True)
-async def mute(ctx, member: discord.Member):
+async def mute(ctx, member: discord.Member, time):
     role = discord.utils.get(ctx.guild.roles, name="Muted")
     await member.add_roles(role)
     embed=discord.Embed(title="User muted!", description="**{0}** was muted by **{1}**!".format(member.display_name, ctx.author.name), color=core_color)
     embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=embed)
+
+    if str(time).endswith("s"):
+        timeList = time.split("s")
+        timeDown = int(timeList[0])
+    elif str(time).endswith("m"):
+        timeList = time.split("m")
+        timeDown = int(timeList[0]) * 60
+    elif str(time).endswith("h"):
+        timeList = time.split("h")
+        timeDown = int(timeList[0]) * 60 * 60
+    await asyncio.sleep(timeDown)
+
+    await member.remove_roles(role)
+
 
 @bot.command()
 async def maths(ctx, arg="practise", arg2="add", arg3=5, arg4=91):
@@ -328,8 +354,10 @@ async def rps(ctx, arg):
         embed.description = "Scissors!"
     elif arg.lower() == "scissors":
         embed.description = "Rock!"
-    await ctx.send(embed=embed)
-
+    if arg != None:
+        await ctx.send(embed=embed)
+    else:
+        raise Exception("No keyword argument specified for the command to run properly. Please put the required arguments and try again.")
 # Announcement Commands
 
 @bot.command()
@@ -581,31 +609,45 @@ async def roll(ctx):
         randomMember = choice(ctx.author.guild.members)
 
 @bot.command()
-async def help(ctx):
-    helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
-    helpEmbed.set_footer(text="CORE | Help")
-    helpEmbed.add_field(name="!help", value="Help Command", inline=True)
-    helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=True)
-    helpEmbed.add_field(name="!maths", value="A maths game", inline=True)
-    helpEmbed.add_field(name="!roll", value="Chooses a random user", inline=True)
-    helpEmbed.add_field(name="!purge", value="To clear messages", inline=True)
-    helpEmbed.add_field(name="!version", value="Recent update for CORE", inline=True)
-    helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=True)
-    helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=True)
-    helpEmbed.add_field(name="!config", value="Changes the server configuration", inline=True)
-    helpEmbed.add_field(name="!announce", value="Announces a message", inline=True)
-    helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=True)
-    helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=True)
-    helpEmbed.add_field(name="!categories", value="Specifies the announce categories", inline=True)
-    helpEmbed.add_field(name="!info", value="Information about a member", inline=True)
-    helpEmbed.add_field(name="!support" ,value="Specifies the support server.", inline=True)
-    helpEmbed.add_field(name="!invite", value="Invite the bot.", inline=True)
-    helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-    await ctx.send(embed=helpEmbed)
+async def help(ctx, arg=None):
+    if arg == None:
+        helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
+        helpEmbed.set_footer(text="CORE | Help")
+        helpEmbed.add_field(name="!help", value="Help Command", inline=True)
+        helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=True)
+        helpEmbed.add_field(name="!maths", value="A maths game", inline=True)
+        helpEmbed.add_field(name="!roll", value="Chooses a random user", inline=True)
+        helpEmbed.add_field(name="!purge", value="To clear messages", inline=True)
+        helpEmbed.add_field(name="!version", value="Recent update for CORE", inline=True)
+        helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=True)
+        helpEmbed.add_field(name="!mute", value="Mutes a user that you specify", inline=True)
+        helpEmbed.add_field(name="!unmute", value="Unmutes a user that you specify", inline=True)
+        helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=True)
+        helpEmbed.add_field(name="!config", value="Changes the server configuration", inline=True)
+        helpEmbed.add_field(name="!announce", value="Announces a message", inline=True)
+        helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=True)
+        helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=True)
+        helpEmbed.add_field(name="!categories", value="Specifies the announce categories", inline=True)
+        helpEmbed.add_field(name="!info", value="Information about a member", inline=True)
+        helpEmbed.add_field(name="!support" ,value="Specifies the support server.", inline=True)
+        helpEmbed.add_field(name="!invite", value="Invite the bot.", inline=True)
+        helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+        await ctx.send(embed=helpEmbed)
+    else:
+        with open("commands.json", "r") as f:
+            command_data = json.load(f)
+
+        if command_data["commands"][arg] != None:
+            result_source = command_data["commands"][arg]
+            embed = discord.Embed(title=f"Help | {result_source['name']}", description=f"{result_source['description']}\n\nSyntax: {result_source['syntax']}", color=core_color)
+            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=embed)
+        else:
+            raise Exception("Argument provided did not match any fields.")
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.0\n\n- New countdown command which you can make the bot countdown for an amount of seconds, minutes or hours. It will ping you with an embed when it is done with the countdown so that you are notified the timer had ended.\n\n- Spelling Corrected in announce command.\n\n      - Added member intents so that roll command works.\n\n      - Random replaced with !roll.\n\n- Help Command has been redone.\n\n- Added server configuration options with local changes to that server rather than global changes.\n\n- Verification system changed to support a 'lockdown' manual verification system to prevent bots getting through verification to add an optional setting for servers so that people who verify need to enter a randomly generated code inside the chat.\n\n- You can now choose your server's announce channel with the config command. It is active on your server and stored with JSON alongside all other configurations. Default announcement channel is: announcements. Make sure to not include the hashtag whilst doing the configuration for the announce command else it will fail.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.1\n\n- Mute command now takes a time parameter.\n\n- Command information now stored in JSON.\n\n      - Redone the intents.\n\n      - Help command now has an optional command parameter so that you can lookup the description and syntax of a command.\n\n- Debug Mode now results in an embed with the error inside rather than in text.\n\n- Rock Paper Scissors bug fixed where the embed would appear but the description wouldn't.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
