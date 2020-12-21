@@ -12,6 +12,8 @@ import requests
 import logging
 import json
 import string
+from utils.mongo import Document
+import motor.motor_asyncio
 
 # Creation & Configuration
 
@@ -44,18 +46,17 @@ async def on_ready():
 	for guild in bot.guilds:
 		member_count_all += guild.member_count
 
-	with open("info.json", "r") as info:
-		global data
-		data = json.load(info)
+	bot.mongo = motor.motor_asyncio.AsyncIOMotorClient("mongodb+srv://mikey:mikey@core-server-alpha.v2edu.mongodb.net/<dbname>?retryWrites=true&w=majority")
+	bot.db = bot.mongo["core"]
+	bot.config = Document(bot.db, "info")
+
+	for document in await bot.config.get_all():
+		print(document)
 
 	for guild in bot.guilds:
-		if str(guild.id) not in data:
-			data[str(guild.id)] = {"manualverification": False, "debug_mode": False, "announcement_channel": "announcements", "verification_role": None, "link_automoderation": False}
-			print(f"{guild.name} | {guild.id} | Added to JSON.")
+		if await bot.config.find_by_id(guild.id) == None:
+			await bot.config.insert({"_id": guild.id, "debug_mode": False, "announcement_channel": "announcements", "verification_role": "Verified", "manualverification": False, "link_automoderation": False})
 
-
-	with open("info.json", "w") as info:
-		json.dump(data, info, indent=2)
 
 	print(f"{member_count_all} Members")
 	bot.loop.create_task(status_change())
@@ -67,14 +68,14 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
-	with open("info.json", "r") as f:
-		info_data = json.load(f)
 
-	if info_data[str(ctx.guild.id)]["debug_mode"] == True:
+	dataset = await bot.config.find_by_id(ctx.guild.id)
+
+	if dataset["debug_mode"] == True:
 		embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
-	elif info_data[str(ctx.guild.id)]["debug_mode"] == False:
+	elif dataset["debug_mode"] == False:
 		embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
@@ -83,15 +84,15 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_message(message):
 	if message.author.bot == False:
-		with open("info.json", "r") as f:
-			info_data = json.load(f)
 
-		if info_data[str(message.guild.id)]["link_automoderation"]:
+		dataset = await bot.config.find_by_id(message.guild.id)
+
+		if dataset["manualverification"]:
 			if "https://" in message.content or "discord.gg/" in message.content:
 				if message.author.guild_permissions.manage_guild:
 					await bot.process_commands(message)
 				else:
-					await message.channel.purge(limit=1)
+					await message.delete()
 	
 	await bot.process_commands(message)
 
@@ -141,25 +142,23 @@ async def unload(ctx, extension):
 async def config(ctx, arg1=None, *, arg2=None):
 	if arg1 == "debug":
 		if arg2 == "on":
-			with open("info.json", "r") as f:
-				data = json.load(f)
 
-			data[str(ctx.guild.id)]["debug_mode"] = True
+			dataset = await bot.config.find_by_id(ctx.guild.id)
 
-			with open("info.json", "w") as f:
-				json.dump(data, f, indent=2)
+			dataset["debug_mode"] = True
+
+			await bot.config.update_by_id(dataset)
+
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 			await ctx.send(embed=embed)
 
 		elif arg2 == "off":
-			with open("info.json", "r") as f:
-				data = json.load(f)
+			dataset = await bot.config.find_by_id(ctx.guild.id)
 
-			data[str(ctx.guild.id)]["debug_mode"] = False
+			dataset["debug_mode"] = False
 
-			with open("info.json", "w") as f:
-				json.dump(data, f, indent=2)
+			await bot.config.update_by_id(dataset)
 
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
@@ -167,48 +166,41 @@ async def config(ctx, arg1=None, *, arg2=None):
 
 	if arg1 == "manualverification":
 		if arg2 == "on" or arg2 == "true":
-			with open("info.json", "r") as f:
-				data = json.load(f)
+			dataset = await bot.config.find_by_id(ctx.guild.id)
 
-			data[str(ctx.guild.id)]["manualverification"] = True
+			dataset["manualverification"] = True
 
-			with open("info.json", "w") as f:
-				json.dump(data, f, indent=2)
+			await bot.config.update_by_id(dataset)
+
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 			await ctx.send(embed=embed)
 		else:
-			with open("info.json", "r") as f:
-				data = json.load(f)
+			dataset = await bot.config.find_by_id(ctx.guild.id)
 
-			data[str(ctx.guild.id)]["manualverification"] = False
+			dataset["manualverification"] = False
 
-			with open("info.json", "w") as f:
-				json.dump(data, f, indent=2)
+			await bot.config.update_by_id(dataset)
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 			await ctx.send(embed=embed)
 
 	if arg1 == "announcement_channel":
-		with open("info.json", "r") as f:
-			data = json.load(f)
+		dataset = await bot.config.find_by_id(ctx.guild.id)
 
-		data[str(ctx.guild.id)]["announcement_channel"] = arg2
+		dataset["announcement_channel"] = arg2
 
-		with open("info.json", "w") as f:
-			json.dump(data, f, indent=2)
+		await bot.config.update_by_id(dataset)
 		embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
 
 	if arg1 == "verification_role":
-		with open("info.json", "r") as f:
-			data = json.load(f)
+		dataset = await bot.config.find_by_id(ctx.guild.id)
 
-		data[str(ctx.guild.id)]["verification_role"] = arg2
+		dataset["verification_role"] = arg2
 
-		with open("info.json", "w") as f:
-			json.dump(data, f, indent=2)
+		await bot.config.update_by_id(dataset)
 
 		embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
@@ -216,13 +208,11 @@ async def config(ctx, arg1=None, *, arg2=None):
 
 	if arg1 == "link_automoderation":
 		if arg2 == "on":
-			with open("info.json", "r") as f:
-				data = json.load(f)
+			dataset = await bot.config.find_by_id(ctx.guild.id)
 
-			data[str(ctx.guild.id)]["link_automoderation"] = True
+			dataset["link_automoderation"] = False
 
-			with open("info.json", "w") as f:
-				json.dump(data, f, indent=2)
+			await bot.config.update_by_id(dataset)
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 			await ctx.send(embed=embed)
@@ -241,7 +231,7 @@ async def config(ctx, arg1=None, *, arg2=None):
 			await ctx.send(embed=embed)
 
 	if arg1 is None and arg2 is None:
-		embed = discord.Embed(title="Configuration", description="\n\n**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers that support it.\n\n**announcement_channel** | Sets the announcement channel.\n\n**verification_role** | Sets the verification role for servers that support it.\n\n**link_automoderation** | Sets a value so that the bot can check for links.", color=core_color)
+		embed = discord.Embed(title="Settings and Configurations", description="__**Configurations**__\n\n**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers.\n\n**announcement_channel** | Sets the announcement channel.\n\n**verification_role** | Sets the verification role for servers.\n\n**link_automoderation** | The bot can check for links.", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
 # MeaxisNetwork Commands
@@ -430,10 +420,9 @@ async def rps(ctx, arg):
 @bot.command()
 @has_permissions(manage_channels=True) 
 async def announce(ctx):
-	with open("info.json", "r") as f:
-		data = json.load(f)
+	dataset = await bot.config.find_by_id(ctx.guild.id)
 
-	announcement_channel = data[str(ctx.guild.id)]["announcement_channel"]
+	announcement_channel = dataset["announcement_channel"]
 	channel = ctx.message.channel
 	announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
 	areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?", color=core_color)
@@ -724,7 +713,7 @@ async def help(ctx, arg=None):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.2\n\n- New configuration able to be edited with the config command. This configuration is the link_automoderation configuration. This enables automoderation on your server and if it sees a link and the author doesn't have the required Manage Guild previleges, the message will be deleted. The default value for this is off but you can turn it on with the config command.\n\n- New configuration able to be edited with the config command. The verification_role configuration makes it so people can verify in your server with the verify command and they will get the role that you specify here. This works in conjuction with the manualverification configuration which adds an extra layer of authentication when verifying creating a 20 character string needed to be able to gain the role. The verification_role configuration's default value is None.\n\n- The countdown and mute command now has elaborated their time parameter meaning you can set a timer or mute someone for multiple hours or days. The countdown command would be useful for scheduled events such as giveaways and you can now set timers for hours or days so that it would be more useful.\n\n      - The roll command has been modified so that the bot cannot be picked under any circumstances. This is to prevent multiple rerolls because of a bot being chosen.\n\n- Custom errors have been made for convenience whilst troubleshooting why your commands aren't working. Such example would be 'Configuration contains invalid argument'. This error means that a value you put in your configuration does not exist anymore meaning you need to reconfigure your server's settings.\n\n- Critical Maths command bug where the bot would respond to itself causing it to immediately fail has been patched out of the bot with a simple context manager fix.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.3\n\n**DATABASE UPDATE**\n\n- Configurations are now stored on MongoDB and are asynchronous with the testing version of CORE that I test new features on and the version you invite. This allows for configuration without having to change it every time CORE has an update or starts up since their was a bug that prevented configurations from saving.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
