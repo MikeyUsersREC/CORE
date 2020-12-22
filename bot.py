@@ -22,6 +22,7 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!' , description=None, intents=intents, case_insensitive=True)
 bot.remove_command("help")
 
+
 # Variables
 
 token = "NzM0NDk1NDg2NzIzMjI3NzYw.XxSiOg.m8r2Znmr4sLqf5dr7k9FX4jdgE0"
@@ -68,17 +69,17 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
+	if not isinstance(error, commands.CommandNotFound):
+		dataset = await bot.config.find_by_id(ctx.guild.id)
 
-	dataset = await bot.config.find_by_id(ctx.guild.id)
-
-	if dataset["debug_mode"] == True:
-		embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
-		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-		await ctx.send(embed=embed)
-	elif dataset["debug_mode"] == False:
-		embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
-		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-		await ctx.send(embed=embed)
+		if dataset["debug_mode"] == True:
+			embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+		elif dataset["debug_mode"] == False:
+			embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
 
 
 @bot.event
@@ -210,7 +211,7 @@ async def config(ctx, arg1=None, *, arg2=None):
 		if arg2 == "on":
 			dataset = await bot.config.find_by_id(ctx.guild.id)
 
-			dataset["link_automoderation"] = False
+			dataset["link_automoderation"] = True
 
 			await bot.config.update_by_id(dataset)
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
