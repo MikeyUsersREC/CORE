@@ -68,19 +68,19 @@ async def on_ready():
 
 		print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
-## @bot.event
-## async def on_command_error(ctx, error):
-##	if not isinstance(error, commands.CommandNotFound):
-##		dataset = await bot.config.find_by_id(ctx.guild.id)
-##
-##		if dataset["debug_mode"] == True:
-##			embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
-##			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-##			await ctx.send(embed=embed)
-##		elif dataset["debug_mode"] == False:
-##			embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
-##			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-##			await ctx.send(embed=embed)
+ @bot.event
+ async def on_command_error(ctx, error):
+	if not isinstance(error, commands.CommandNotFound):
+		dataset = await bot.config.find_by_id(ctx.guild.id)
+
+		if dataset["debug_mode"] == True:
+			embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
+		elif dataset["debug_mode"] == False:
+			embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
 
 
 @bot.event
