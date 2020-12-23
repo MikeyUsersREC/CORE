@@ -92,10 +92,12 @@ async def on_command_error(ctx, error):
 		dataset = bot.config.find_by_id(ctx.guild.id)
 		if dataset["debug_mode"]:
 			embed = discord.Embed(title="An error has occured.", description=f"An error has occured that has prevented the command to run properly. {str(error)}")
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 			await ctx.send(embed=embed)
 		else:
 			embed = discord.Embed(title="An error has occured.", description="An error has occured that has prevented the command to run properly.")
-			await ctx.send()
+			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			await ctx.send(embed=embed)
 
 
 
@@ -414,7 +416,7 @@ async def warn(ctx, member: discord.Member, *,reason=None):
 			await ctx.send(embed=embed)
 	else:
 		embed = discord.Embed(title="Command Failed", description="You are not allowed to warn this user.", color=core_color)
-    	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
 
 
