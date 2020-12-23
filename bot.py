@@ -17,9 +17,19 @@ import motor.motor_asyncio
 
 # Creation & Configuration
 
-intents = discord.Intents.all()
+async def get_prefix(client, message):
+	mongo = motor.motor_asyncio.AsyncIOMotorClient("mongodb+srv://mikey:mikey@core-server-alpha.v2edu.mongodb.net/<dbname>?retryWrites=true&w=majority")
+	db = mongo["core"]
+	prefixes = Document(db, "prefixes")
+	if await prefixes.find_by_id(message.guild.id) == None:
+		return "!"
+	else:
+		dataset = await prefixes.find_by_id(message.guild.id)
+		return dataset["prefix"]
 
-bot = commands.Bot(command_prefix='!' , description=None, intents=intents, case_insensitive=True)
+
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix=get_prefix, description=None, intents=intents, case_insensitive=True)
 bot.remove_command("help")
 
 
@@ -51,6 +61,7 @@ async def on_ready():
 	bot.db = bot.mongo["core"]
 	bot.config = Document(bot.db, "info")
 	bot.warningData = Document(bot.db, "warnings")
+	bot.prefixData = Document(bot.db, "prefixes")
 	for document in await bot.config.get_all():
 		print(document)
 
@@ -58,6 +69,12 @@ async def on_ready():
 		if await bot.config.find_by_id(guild.id) == None:
 			await bot.config.insert({"_id": guild.id, "debug_mode": False, "announcement_channel": "announcements", "verification_role": "Verified", "manualverification": False, "link_automoderation": False})
 	
+	for guild in bot.guilds:
+		if await bot.prefixData.find_by_id(guild.id) == None:
+			await bot.prefixData.insert({"_id": guild.id, "prefix": "!"})
+
+	for document in await bot.prefixData.get_all():
+		print(document)
 
 	print(f"{member_count_all} Members")
 	bot.loop.create_task(status_change())
@@ -68,20 +85,18 @@ async def on_ready():
 
 		print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
-
 @bot.event
 async def on_command_error(ctx, error):
 	if not isinstance(error, commands.CommandNotFound):
-		dataset = await bot.config.find_by_id(ctx.guild.id)
+		embed = discord.Embed(title="An error has occured.")
+		dataset = bot.config.find_by_id(ctx.guild.id)
+		if dataset["debug_mode"]:
+			embed = discord.Embed(title="An error has occured.", description=f"An error has occured that has prevented the command to run properly. {str(error)}")
+			await ctx.send(embed=embed)
+		else:
+			embed = discord.Embed(title="An error has occured.", description="An error has occured that has prevented the command to run properly.")
+			await ctx.send()
 
-		if dataset["debug_mode"] == True:
-			embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
-			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-			await ctx.send(embed=embed)
-		elif dataset["debug_mode"] == False:
-			embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
-			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-			await ctx.send(embed=embed)
 
 
 @bot.event
@@ -134,7 +149,7 @@ async def warningDataUpdate():
 
 # Commands
 
-@bot.command()
+@bot.command(aliases=["clearwarns", "clearwarnings"])
 @has_permissions(manage_messages=True)
 async def clear_warns(ctx, member: discord.Member):
 	dataset = await bot.warningData.find_by_id(ctx.guild.id)
@@ -143,8 +158,18 @@ async def clear_warns(ctx, member: discord.Member):
 	print(f"{member.name} in {ctx.guild.name} has been updated to warning database.")
 
 
-
-
+@bot.command()
+@has_permissions(manage_guild=True)
+async def prefix(ctx, arg=None):
+	if arg == None:
+		dataset = await bot.prefixData.find_by_id(ctx.guild.id)
+		prefix = dataset["prefix"]
+		await ctx.send(f"My prefix is `{prefix}`")
+	else:
+		dataset = await bot.prefixData.find_by_id(ctx.guild.id)
+		dataset["prefix"] = arg
+		await bot.prefixData.update_by_id(dataset)
+		await ctx.send(f"My prefix has been changed to `{arg}`")
 
 @bot.command()
 async def load(ctx, extension):
@@ -362,7 +387,7 @@ async def run(ctx, *, cmd):
 @bot.command()
 @has_permissions(manage_messages=True)
 async def warn(ctx, member: discord.Member, *,reason=None):
-	if member.guild_permissions.manage_messages:
+	if not member.guild_permissions.manage_messages:
 		topDataSet = await bot.warningData.find_by_id(ctx.guild.id)
 		bottomDataSet = topDataSet[str(member.id)]
 		if bottomDataSet["warnings"] == 0:
@@ -388,7 +413,8 @@ async def warn(ctx, member: discord.Member, *,reason=None):
 			embed.set_thumbnail(url=member.avatar_url)
 			await ctx.send(embed=embed)
 	else:
-		embed = discord.Embed(title="Command Failed", description="You are not allowed to warn this user.")
+		embed = discord.Embed(title="Command Failed", description="You are not allowed to warn this user.", color=core_color)
+    	embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
 
 
@@ -785,15 +811,14 @@ async def help(ctx, arg=None):
 		helpEmbed.add_field(name="!unmute", value="Unmutes a user that you specify", inline=True)
 		helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=True)
 		helpEmbed.add_field(name="!warn", value="Give a warning to a member.", inline=True)
-		helpEmbed.add_field(name="!warnings", value=" Look at what infractions someone has.", inline=True)
+		helpEmbed.add_field(name="!warnings", value=" What warnings someone has.", inline=True)
 		helpEmbed.add_field(name="!config", value="Changes the server configuration", inline=True)
 		helpEmbed.add_field(name="!announce", value="Announces a message", inline=True)
 		helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=True)
 		helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=True)
 		helpEmbed.add_field(name="!categories", value="Specifies the announce categories", inline=True)
 		helpEmbed.add_field(name="!info", value="Information about a member", inline=True)
-		helpEmbed.add_field(name="!support" ,value="Specifies the support server.", inline=True)
-		helpEmbed.add_field(name="!invite", value="Invite the bot.", inline=True)
+		helpEmbed.add_field(name="!support" ,value="Support Server", inline=True)
 		helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=helpEmbed)
 	else:
