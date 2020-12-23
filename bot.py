@@ -68,8 +68,9 @@ async def on_ready():
 
 		print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
- @bot.event
- async def on_command_error(ctx, error):
+
+@bot.event
+async def on_command_error(ctx, error):
 	if not isinstance(error, commands.CommandNotFound):
 		dataset = await bot.config.find_by_id(ctx.guild.id)
 
