@@ -22,6 +22,7 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!' , description=None, intents=intents, case_insensitive=True)
 bot.remove_command("help")
 
+
 # Variables
 
 token = "TOKEN HERE"
@@ -46,38 +47,41 @@ async def on_ready():
     for guild in bot.guilds:
         member_count_all += guild.member_count
 
-    bot.mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGODB-URL-STRING-HERE")
-    bot.db = bot.mongo["name-of-database"]
-    bot.config = Document(bot.db, "name-of-collection")
-
+    bot.mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGODB URL HERE")
+    bot.db = bot.mongo["core"]
+    bot.config = Document(bot.db, "info")
+    bot.warningData = Document(bot.db, "warnings")
     for document in await bot.config.get_all():
         print(document)
 
     for guild in bot.guilds:
         if await bot.config.find_by_id(guild.id) == None:
             await bot.config.insert({"_id": guild.id, "debug_mode": False, "announcement_channel": "announcements", "verification_role": "Verified", "manualverification": False, "link_automoderation": False})
-
+    
 
     print(f"{member_count_all} Members")
     bot.loop.create_task(status_change())
+    bot.loop.create_task(warningDataUpdate())
+    bot.load_extension(f'extensions.dbl')
 
     for guild in bot.guilds:
 
         print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
+
 @bot.event
 async def on_command_error(ctx, error):
+    if not isinstance(error, commands.CommandNotFound):
+        dataset = await bot.config.find_by_id(ctx.guild.id)
 
-    dataset = await bot.config.find_by_id(ctx.guild.id)
-
-    if dataset["debug_mode"] == True:
-        embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
-        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-        await ctx.send(embed=embed)
-    elif dataset["debug_mode"] == False:
-        embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
-        embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-        await ctx.send(embed=embed)
+        if dataset["debug_mode"] == True:
+            embed = discord.Embed(title="An error has occured", description=f"You have not put the correct parameters for this command.\n\n\n```{str(error)}```", color=core_color)
+            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=embed)
+        elif dataset["debug_mode"] == False:
+            embed = discord.Embed(title="An error has occured", description="You have not put the correct parameters for this command.", color=core_color)
+            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+            await ctx.send(embed=embed)
 
 
 @bot.event
@@ -95,8 +99,6 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-# Status
-
 async def status_change():
     while True:
         statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
@@ -110,7 +112,39 @@ async def status_change():
         await asyncio.sleep(10)
 
 
+async def warningDataUpdate():
+    await asyncio.sleep(3600)
+    while True:
+        for guild in bot.guilds:
+            if await bot.warningData.find_by_id(guild.id) == None:
+                await bot.warningData.insert({"_id": guild.id, "name": guild.name})
+                for member in guild.members:
+                    dataset = await bot.warningData.find_by_id(guild.id)
+                    dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+                    await bot.warningData.update_by_id(dataset)
+                    print(f"{member.name} in {guild.name} has been updated to warning database.")
+            elif await bot.warningData.find_by_id(guild.id) != None:
+                for member in guild.members:
+                    dataset = await bot.warningData.find_by_id(guild.id)
+                    if dataset[str(member.id)] == None:
+                        dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+                        await bot.warningData.update_by_id(dataset)
+                        print(f"{member.name} in {guild.name} has been updated to warning database.")
+            
+
 # Commands
+
+@bot.command()
+@has_permissions(manage_messages=True)
+async def clear_warns(ctx, member: discord.Member):
+    dataset = await bot.warningData.find_by_id(ctx.guild.id)
+    dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": ctx.guild.id, "warningReasons": None}
+    await bot.warningData.update_by_id(dataset)
+    print(f"{member.name} in {ctx.guild.name} has been updated to warning database.")
+
+
+
+
 
 @bot.command()
 async def load(ctx, extension):
@@ -209,7 +243,7 @@ async def config(ctx, arg1=None, *, arg2=None):
         if arg2 == "on":
             dataset = await bot.config.find_by_id(ctx.guild.id)
 
-            dataset["link_automoderation"] = False
+            dataset["link_automoderation"] = True
 
             await bot.config.update_by_id(dataset)
             embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
@@ -233,7 +267,6 @@ async def config(ctx, arg1=None, *, arg2=None):
         embed = discord.Embed(title="Settings and Configurations", description="__**Configurations**__\n\n**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers.\n\n**announcement_channel** | Sets the announcement channel.\n\n**verification_role** | Sets the verification role for servers.\n\n**link_automoderation** | The bot can check for links.", color=core_color)
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=embed)
-
 # MeaxisNetwork Commands
 
 @bot.command()
@@ -308,13 +341,75 @@ async def finduser(ctx, username):
 @bot.command()
 async def run(ctx, *, cmd):
     if ctx.author.id == 635119023918415874:
-        try:
-            eval(cmd)
-            await ctx.send(f'CORE executed your command --> {cmd}')
-        except:
-            print(f'{cmd} is an invalid command')
-            await ctx.send(f'CORE could not execute an invalid command --> {cmd}')
+        if cmd == "ManualWarningDataUpdate":
+            for guild in bot.guilds:
+                if await bot.warningData.find_by_id(guild.id) == None:
+                    await bot.warningData.insert({"_id": guild.id, "name": guild.name})
+                    for member in guild.members:
+                        dataset = await bot.warningData.find_by_id(guild.id)
+                        dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+                        await bot.warningData.update_by_id(dataset)
+                        await ctx.send(f"{member.name} in {guild.name} has been updated to warning database.")
+                elif await bot.warningData.find_by_id(guild.id) != None:
+                    for member in guild.members:
+                        dataset = await bot.warningData.find_by_id(guild.id)
+                        if dataset[str(member.id)] == None:
+                            dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+                            await bot.warningData.update_by_id(dataset)
+                            await ctx.send(f"{member.name} in {guild.name} has been updated to warning database.")
 
+
+@bot.command()
+@has_permissions(manage_messages=True)
+async def warn(ctx, member: discord.Member, *,reason=None):
+    if member.guild_permissions.manage_messages:
+        topDataSet = await bot.warningData.find_by_id(ctx.guild.id)
+        bottomDataSet = topDataSet[str(member.id)]
+        if bottomDataSet["warnings"] == 0:
+            bottomDataSet["warnings"] = 1
+            warnings = bottomDataSet["warnings"]
+            bottomDataSet["warningReasons"] = {"Warning 1": reason}
+            await bot.warningData.update_by_id(topDataSet)
+            embed = discord.Embed(title=f"Warned Successfully", color=core_color)       
+            embed.add_field(name="User", value=f"{member.name}#{member.discriminator}", inline=False)
+            embed.add_field(name="Warning Number", value=f"Warning {warnings}", inline=False)
+            embed.add_field(name="Warned by:", value=f"{ctx.author.name}#{ctx.author.discriminator}", inline=False)
+            embed.set_thumbnail(url=member.avatar_url)
+            await ctx.send(embed=embed)
+        elif bottomDataSet["warnings"] >= 1 or bottomDataSet["warnings"] == 1:
+            bottomDataSet["warnings"] += 1
+            warnings = bottomDataSet["warnings"]
+            bottomDataSet["warningReasons"][f"Warning {warnings}"] = reason
+            await bot.warningData.update_by_id(topDataSet)
+            embed = discord.Embed(title=f"Warned Successfully", color=core_color)       
+            embed.add_field(name="User", value=f"{member.name}#{member.discriminator}", inline=False)
+            embed.add_field(name="Warning Number", value=f"Warning {warnings}", inline=False)
+            embed.add_field(name="Warned by:", value=f"{ctx.author.name}#{ctx.author.discriminator}", inline=False)
+            embed.set_thumbnail(url=member.avatar_url)
+            await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Command Failed", description="You are not allowed to warn this user.")
+        await ctx.send(embed=embed)
+
+
+
+@bot.command(name="get_log", aliases=["get_warnings", "warnings"])
+@has_permissions(manage_messages=True)
+async def get_log(ctx, member: discord.Member):
+    topDataSet = await bot.warningData.find_by_id(ctx.guild.id)
+    bottomDataSet = topDataSet[str(member.id)]
+    warnings = bottomDataSet["warnings"]
+    embed = discord.Embed(title=f"Warnings for {member.name}", color=core_color)
+    embed.add_field(name="User", value=f"{member.name}#{member.discriminator}", inline=False)
+    embed.add_field(name="Warning Amount", value=f"{warnings}")
+
+    for warning in range(0, warnings):
+        value = bottomDataSet["warningReasons"][f"Warning {warning}"]
+        if f"Warning {warning}" in bottomDataSet["warningReasons"]:
+            embed.add_field(name=f"Warning {warning}", value=f"{value}", inline=False)
+
+    embed.set_thumbnail(url=member.avatar_url)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -689,6 +784,8 @@ async def help(ctx, arg=None):
         helpEmbed.add_field(name="!mute", value="Mutes a user that you specify", inline=True)
         helpEmbed.add_field(name="!unmute", value="Unmutes a user that you specify", inline=True)
         helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=True)
+        helpEmbed.add_field(name="!warn", value="Give a warning to a member.", inline=True)
+        helpEmbed.add_field(name="!warnings", value=" Look at what infractions someone has.", inline=True)
         helpEmbed.add_field(name="!config", value="Changes the server configuration", inline=True)
         helpEmbed.add_field(name="!announce", value="Announces a message", inline=True)
         helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=True)
@@ -713,10 +810,9 @@ async def help(ctx, arg=None):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.3\n\n**DATABASE UPDATE**\n\n- Configurations are now stored on MongoDB and are asynchronous with the testing version of CORE that I test new features on and the version you invite. This allows for configuration without having to change it every time CORE has an update or starts up since their was a bug that prevented configurations from saving.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.4\n\n- New warning command which adds a warning to the member specified. It is then added to their object with how many warnings they have and the warning reasons. You can then use the new !warnings [member] command which has many aliases (get_log and get_warnings and it shows you information about how many warnings they have and the reasons for them.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
-
 
 @bot.command()
 @has_permissions(manage_channels=True)
