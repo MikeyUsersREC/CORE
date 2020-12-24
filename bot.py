@@ -799,27 +799,33 @@ async def roll(ctx):
 @bot.command()
 async def help(ctx, arg=None):
 	if arg == None:
+		
+
+		dataset = await bot.prefixData.find_by_id(ctx.guild.id)
+		prefix = dataset["prefix"]
+
 		helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
 		helpEmbed.set_footer(text="CORE | Help")
-		helpEmbed.add_field(name="!help", value="Help Command", inline=True)
-		helpEmbed.add_field(name="!rps", value="Rock Paper Scissors", inline=True)
-		helpEmbed.add_field(name="!maths", value="A maths game", inline=True)
-		helpEmbed.add_field(name="!roll", value="Chooses a random user", inline=True)
-		helpEmbed.add_field(name="!purge", value="To clear messages", inline=True)
-		helpEmbed.add_field(name="!version", value="Recent update for CORE", inline=True)
-		helpEmbed.add_field(name="!kick", value="Kicks a user that you specify", inline=True)
-		helpEmbed.add_field(name="!mute", value="Mutes a user that you specify", inline=True)
-		helpEmbed.add_field(name="!unmute", value="Unmutes a user that you specify", inline=True)
-		helpEmbed.add_field(name="!ban", value="Bans a user that you specify", inline=True)
-		helpEmbed.add_field(name="!warn", value="Give a warning to a member.", inline=True)
-		helpEmbed.add_field(name="!warnings", value=" What warnings someone has.", inline=True)
-		helpEmbed.add_field(name="!config", value="Changes the server configuration", inline=True)
-		helpEmbed.add_field(name="!announce", value="Announces a message", inline=True)
-		helpEmbed.add_field(name="!load", value="Loads a specific extension", inline=True)
-		helpEmbed.add_field(name="!unload", value="Unloads a specific extension", inline=True)
-		helpEmbed.add_field(name="!categories", value="Specifies the announce categories", inline=True)
-		helpEmbed.add_field(name="!info", value="Information about a member", inline=True)
-		helpEmbed.add_field(name="!support" ,value="Support Server", inline=True)
+		helpEmbed.add_field(name=f"{prefix}help", value="Help Command", inline=True)
+		helpEmbed.add_field(name=f"{prefix}rps", value="Rock Paper Scissors", inline=True)
+		helpEmbed.add_field(name=f"{prefix}maths", value="A maths game", inline=True)
+		helpEmbed.add_field(name=f"{prefix}roll", value="Chooses a random user", inline=True)
+		helpEmbed.add_field(name=f"{prefix}purge", value="To clear messages", inline=True)
+		helpEmbed.add_field(name=f"{prefix}version", value="Recent update for CORE", inline=True)
+		helpEmbed.add_field(name=f"{prefix}kick", value="Kicks a user that you specify", inline=True)
+		helpEmbed.add_field(name=f"{prefix}mute", value="Mutes a user that you specify", inline=True)
+		helpEmbed.add_field(name=f"{prefix}unmute", value="Unmutes a user that you specify", inline=True)
+		helpEmbed.add_field(name=f"{prefix}ban", value="Bans a user that you specify", inline=True)
+		helpEmbed.add_field(name=f"{prefix}warn", value="Give a warning to a member.", inline=True)
+		helpEmbed.add_field(name=f"{prefix}warnings", value=" What warnings someone has.", inline=True)
+		helpEmbed.add_field(name=f"{prefix}config", value="Changes the server configuration", inline=True)
+		helpEmbed.add_field(name=f"{prefix}announce", value="Announces a message", inline=True)
+		helpEmbed.add_field(name=f"{prefix}load", value="Loads a specific extension", inline=True)
+		helpEmbed.add_field(name=f"{prefix}unload", value="Unloads a specific extension", inline=True)
+		helpEmbed.add_field(name=f"{prefix}categories", value="Specifies the announce categories", inline=True)
+		helpEmbed.add_field(name=f"{prefix}info", value="Information about a member", inline=True)
+		helpEmbed.add_field(name=f"{prefix}support" ,value="Support Server", inline=True)
+		helpEmbed.add_field(name=f"{prefix}prefix" ,value="Modify the prefix.", inline=True)
 		helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=helpEmbed)
 	else:
@@ -836,7 +842,7 @@ async def help(ctx, arg=None):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.4\n\n- New warning command which adds a warning to the member specified. It is then added to their object with how many warnings they have and the warning reasons. You can then use the new !warnings [member] command which has many aliases (get_log and get_warnings and it shows you information about how many warnings they have and the reasons for them.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.5\n\n- New prefix command which you can change the prefix and view the current prefix for your server. This will also modify the help command to also include the server prefix in the command name rather than the default '!'.\n\n- Verify command fixed and can now function properly.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
