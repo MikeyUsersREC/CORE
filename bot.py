@@ -18,7 +18,7 @@ import motor.motor_asyncio
 # Creation & Configuration
 
 async def get_prefix(client, message):
-    mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGO DB URL")
+    mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGODB URL")
     db = mongo["core"]
     prefixes = Document(db, "prefixes")
     if await prefixes.find_by_id(message.guild.id) == None:
@@ -89,7 +89,7 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if not isinstance(error, commands.CommandNotFound):
         embed = discord.Embed(title="An error has occured.")
-        dataset = bot.config.find_by_id(ctx.guild.id)
+        dataset = await bot.config.find_by_id(ctx.guild.id)
         if dataset["debug_mode"]:
             embed = discord.Embed(title="An error has occured.", description=f"An error has occured that has prevented the command to run properly. {str(error)}")
             embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
