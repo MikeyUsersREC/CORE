@@ -7,6 +7,13 @@
 		"syntax": "!help [command]"
 	},
 
+	"countdown":{
+		"name": "!countdown",
+		"description": "The bot pings you when the timer finishes.",
+		"syntax": "!countdown [time]"
+	},
+
+
 	"rps":{
 		"name": "!rps",
 		"description": "A command that means you can play rock paper scissors with the bot.",
