@@ -718,16 +718,15 @@ async def duty(ctx, arg1="On-Duty"):
 
 @bot.command()
 async def verify(ctx):
-	with open("info.json", "r") as f:
-		info_data = json.load(f)
 
-	verification_role = info_data[str(ctx.guild.id)]["verification_role"]
+	dataset = await bot.config.find_by_id(ctx.guild.id)
+	verification_role = dataset["verification_role"]
 
 	if get(ctx.guild.roles, name=verification_role) == None:
 		raise Exception("Configuration contains invalid argument.")
 		return
 
-	if info_data[str(ctx.guild.id)]["manualverification"] == False:
+	if dataset["manualverification"] == False:
 		member = ctx.message.author
 		role = get(member.guild.roles, name=verification_role)
 		if role in member.roles:
@@ -740,7 +739,7 @@ async def verify(ctx):
 			embed.add_field(name="Added Roles", value=verification_role)
 			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 			await ctx.send(embed=embed)
-	elif info_data[str(ctx.guild.id)]["manualverification"] == True:
+	elif dataset["manualverification"] == True:
 		member = ctx.message.author
 		role = get(member.guild.roles, name=verification_role)
 		letters = string.ascii_lowercase
