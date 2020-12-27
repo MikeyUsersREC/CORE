@@ -14,6 +14,7 @@ import json
 import string
 from utils.mongo import Document
 import motor.motor_asyncio
+import traceback
 
 # Creation & Configuration
 
@@ -85,19 +86,29 @@ async def on_ready():
 
 		print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
+# @bot.event
+# async def on_command_error(ctx, error):
+#	if not isinstance(error, commands.CommandNotFound):
+#		embed = discord.Embed(title="An error has occured.")
+#		dataset = await bot.config.find_by_id(ctx.guild.id)
+#		if dataset["debug_mode"]:
+#			traceback.print_tb(error.__traceback__)
+#		else:
+#			embed = discord.Embed(title="An error has occured.", description="An error has occured that has prevented the command to run properly.")
+#			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+#			await ctx.send(embed=embed)
+
+
 @bot.event
-async def on_command_error(ctx, error):
-	if not isinstance(error, commands.CommandNotFound):
-		embed = discord.Embed(title="An error has occured.")
-		dataset = await bot.config.find_by_id(ctx.guild.id)
-		if dataset["debug_mode"]:
-			embed = discord.Embed(title="An error has occured.", description=f"An error has occured that has prevented the command to run properly. {str(error)}")
-			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-			await ctx.send(embed=embed)
-		else:
-			embed = discord.Embed(title="An error has occured.", description="An error has occured that has prevented the command to run properly.")
-			embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-			await ctx.send(embed=embed)
+async def on_guild_join(guild):
+	await bot.config.insert({"_id": guild.id, "debug_mode": False, "announcement_channel": "announcements", "verification_role": "Verified", "manualverification": False, "link_automoderation": False})
+	await bot.warningData.insert({"_id": guild.id, "name": guild.name})
+	for member in guild.members:
+		dataset = await bot.warningData.find_by_id(guild.id)
+		dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+		await bot.warningData.update_by_id(dataset)
+		print(f"{member.name} in {guild.name} has been updated to warning database.")
+	await bot.prefixData.insert({"_id": guild.id, "prefix": "!"})
 
 
 
@@ -106,8 +117,6 @@ async def on_message(message):
 	if message.author.bot == False:
 
 		dataset = await bot.config.find_by_id(message.guild.id)
-		prefixDataSet = await bot.prefixData.find_by_id(message.guild.id)
-		prefix = prefixDataSet["prefix"]
 
 		if dataset["manualverification"]:
 			if "https://" in message.content or "discord.gg/" in message.content:
@@ -115,6 +124,7 @@ async def on_message(message):
 					await bot.process_commands(message)
 				else:
 					await message.delete()
+			await bot.process_commands(message)
 		await bot.process_commands(message)
 
 async def status_change():
@@ -526,17 +536,21 @@ async def info(ctx, *, member: discord.Member):
 
 @bot.command()
 async def rps(ctx, arg):
-    embed = discord.Embed(title="Rock Paper Scissors!", color=core_color)
-    if arg.lower() == "rock":
-        embed.description = "Paper!"
-    elif arg.lower() == "paper":
-        embed.description = "Scissors!"
-    elif arg.lower() == "scissors":
-        embed.description = "Rock!"
-    if arg != None:
-    	await ctx.send(embed=embed)
-    else:
-    	raise Exception("No keyword argument specified for the command to run properly. Please put the required arguments and try again.")
+	randomNumber = randint(1, 3)
+	embed = discord.Embed(title="Rock Paper Scissors!", color=core_color)
+	if arg.lower() == "rock" or arg.lower() == "paper" or arg.lower() == "scissors":
+		if randomNumber == 1:
+			embed.description = "Rock!"
+		elif randomNumber == 2:
+			embed.description = "Paper!"
+		elif randomNumber == 3:
+			embed.description = "Scissors!"
+
+	if arg.lower() == "rock" or arg.lower() == "paper" or arg.lower() == "scissors":
+		await ctx.send(embed=embed)
+	else:
+		await ctx.send("Please put one of the required arguments. Arguments: 'rock', 'paper' or 'scissors'")
+		raise Exception("No keyword argument specified for the command to run properly. Please put the required arguments and try again.")
 # Announcement Commands
 
 @bot.command()
