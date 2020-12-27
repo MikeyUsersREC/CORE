@@ -14,11 +14,12 @@ import json
 import string
 from utils.mongo import Document
 import motor.motor_asyncio
+import traceback
 
 # Creation & Configuration
 
 async def get_prefix(client, message):
-    mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGODB URL")
+    mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGO DB TOKEN")
     db = mongo["core"]
     prefixes = Document(db, "prefixes")
     if await prefixes.find_by_id(message.guild.id) == None:
@@ -57,7 +58,7 @@ async def on_ready():
     for guild in bot.guilds:
         member_count_all += guild.member_count
 
-    bot.mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGODB URL")
+    bot.mongo = motor.motor_asyncio.AsyncIOMotorClient("MONGO DB TOKEN")
     bot.db = bot.mongo["core"]
     bot.config = Document(bot.db, "info")
     bot.warningData = Document(bot.db, "warnings")
@@ -85,19 +86,29 @@ async def on_ready():
 
         print(f"{str(guild.id)} | {str(guild.name)} | {str(guild.member_count)} Members")
 
+# @bot.event
+# async def on_command_error(ctx, error):
+#   if not isinstance(error, commands.CommandNotFound):
+#       embed = discord.Embed(title="An error has occured.")
+#       dataset = await bot.config.find_by_id(ctx.guild.id)
+#       if dataset["debug_mode"]:
+#           traceback.print_tb(error.__traceback__)
+#       else:
+#           embed = discord.Embed(title="An error has occured.", description="An error has occured that has prevented the command to run properly.")
+#           embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+#           await ctx.send(embed=embed)
+
+
 @bot.event
-async def on_command_error(ctx, error):
-    if not isinstance(error, commands.CommandNotFound):
-        embed = discord.Embed(title="An error has occured.")
-        dataset = await bot.config.find_by_id(ctx.guild.id)
-        if dataset["debug_mode"]:
-            embed = discord.Embed(title="An error has occured.", description=f"An error has occured that has prevented the command to run properly. {str(error)}")
-            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-            await ctx.send(embed=embed)
-        else:
-            embed = discord.Embed(title="An error has occured.", description="An error has occured that has prevented the command to run properly.")
-            embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
-            await ctx.send(embed=embed)
+async def on_guild_join(guild):
+    await bot.config.insert({"_id": guild.id, "debug_mode": False, "announcement_channel": "announcements", "verification_role": "Verified", "manualverification": False, "link_automoderation": False})
+    await bot.warningData.insert({"_id": guild.id, "name": guild.name})
+    for member in guild.members:
+        dataset = await bot.warningData.find_by_id(guild.id)
+        dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+        await bot.warningData.update_by_id(dataset)
+        print(f"{member.name} in {guild.name} has been updated to warning database.")
+    await bot.prefixData.insert({"_id": guild.id, "prefix": "!"})
 
 
 
@@ -113,8 +124,8 @@ async def on_message(message):
                     await bot.process_commands(message)
                 else:
                     await message.delete()
-    
-    await bot.process_commands(message)
+            await bot.process_commands(message)
+        await bot.process_commands(message)
 
 async def status_change():
     while True:
@@ -278,13 +289,11 @@ async def config(ctx, arg1=None, *, arg2=None):
             await ctx.send(embed=embed)
 
         elif arg2 == "off":
-            with open("info.json", "r") as f:
-                data = json.load(f)
+            dataset = await bot.config.find_by_id(ctx.guild.id)
 
-            data[str(ctx.guild.id)]["link_automoderation"] = False
+            dataset["link_automoderation"] = False
 
-            with open("info.json", "w") as f:
-                json.dump(data, f, indent=2)
+            await bot.config.update_by_id(dataset)
 
             embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
             embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
@@ -527,16 +536,20 @@ async def info(ctx, *, member: discord.Member):
 
 @bot.command()
 async def rps(ctx, arg):
+    randomNumber = randint(1, 3)
     embed = discord.Embed(title="Rock Paper Scissors!", color=core_color)
-    if arg.lower() == "rock":
-        embed.description = "Paper!"
-    elif arg.lower() == "paper":
-        embed.description = "Scissors!"
-    elif arg.lower() == "scissors":
-        embed.description = "Rock!"
-    if arg != None:
+    if arg.lower() == "rock" or arg.lower() == "paper" or arg.lower() == "scissors":
+        if randomNumber == 1:
+            embed.description = "Rock!"
+        elif randomNumber == 2:
+            embed.description = "Paper!"
+        elif randomNumber == 3:
+            embed.description = "Scissors!"
+
+    if arg.lower() == "rock" or arg.lower() == "paper" or arg.lower() == "scissors":
         await ctx.send(embed=embed)
     else:
+        await ctx.send("Please put one of the required arguments. Arguments: 'rock', 'paper' or 'scissors'")
         raise Exception("No keyword argument specified for the command to run properly. Please put the required arguments and try again.")
 # Announcement Commands
 
@@ -806,26 +819,27 @@ async def help(ctx, arg=None):
 
         helpEmbed = discord.Embed(color=core_color, title="CORE | Help")
         helpEmbed.set_footer(text="CORE | Help")
-        helpEmbed.add_field(name=f"{prefix}help", value="Help Command", inline=True)
-        helpEmbed.add_field(name=f"{prefix}rps", value="Rock Paper Scissors", inline=True)
-        helpEmbed.add_field(name=f"{prefix}maths", value="A maths game", inline=True)
-        helpEmbed.add_field(name=f"{prefix}roll", value="Chooses a random user", inline=True)
-        helpEmbed.add_field(name=f"{prefix}purge", value="To clear messages", inline=True)
-        helpEmbed.add_field(name=f"{prefix}version", value="Recent update for CORE", inline=True)
-        helpEmbed.add_field(name=f"{prefix}kick", value="Kicks a user that you specify", inline=True)
-        helpEmbed.add_field(name=f"{prefix}mute", value="Mutes a user that you specify", inline=True)
-        helpEmbed.add_field(name=f"{prefix}unmute", value="Unmutes a user that you specify", inline=True)
-        helpEmbed.add_field(name=f"{prefix}ban", value="Bans a user that you specify", inline=True)
-        helpEmbed.add_field(name=f"{prefix}warn", value="Give a warning to a member.", inline=True)
-        helpEmbed.add_field(name=f"{prefix}warnings", value=" What warnings someone has.", inline=True)
-        helpEmbed.add_field(name=f"{prefix}config", value="Changes the server configuration", inline=True)
-        helpEmbed.add_field(name=f"{prefix}announce", value="Announces a message", inline=True)
-        helpEmbed.add_field(name=f"{prefix}load", value="Loads a specific extension", inline=True)
-        helpEmbed.add_field(name=f"{prefix}unload", value="Unloads a specific extension", inline=True)
-        helpEmbed.add_field(name=f"{prefix}categories", value="Specifies the announce categories", inline=True)
-        helpEmbed.add_field(name=f"{prefix}info", value="Information about a member", inline=True)
-        helpEmbed.add_field(name=f"{prefix}support" ,value="Support Server", inline=True)
-        helpEmbed.add_field(name=f"{prefix}prefix" ,value="Modify the prefix.", inline=True)
+        helpEmbed.add_field(name=f"{prefix}help", value="Help Command", inline=False)
+        helpEmbed.add_field(name=f"{prefix}rps", value="Rock Paper Scissors", inline=False)
+        helpEmbed.add_field(name=f"{prefix}maths", value="A maths game", inline=False)
+        helpEmbed.add_field(name=f"{prefix}roll", value="Chooses a random user", inline=False)
+        helpEmbed.add_field(name=f"{prefix}purge", value="To clear messages", inline=False)
+        helpEmbed.add_field(name=f"{prefix}version", value="Recent update for CORE", inline=False)
+        helpEmbed.add_field(name=f"{prefix}kick", value="Kicks a user that you specify", inline=False)
+        helpEmbed.add_field(name=f"{prefix}mute", value="Mutes a user that you specify", inline=False)
+        helpEmbed.add_field(name=f"{prefix}unmute", value="Unmutes a user that you specify", inline=False)
+        helpEmbed.add_field(name=f"{prefix}ban", value="Bans a user that you specify", inline=False)
+        helpEmbed.add_field(name=f"{prefix}warn", value="Give a warning to a member.", inline=False)
+        helpEmbed.add_field(name=f"{prefix}warnings", value=" What warnings someone has.", inline=False)
+        helpEmbed.add_field(name=f"{prefix}config", value="Changes the server configuration", inline=False)
+        helpEmbed.add_field(name=f"{prefix}announce", value="Announces a message", inline=False)
+        helpEmbed.add_field(name=f"{prefix}load", value="Loads a specific extension", inline=False)
+        helpEmbed.add_field(name=f"{prefix}unload", value="Unloads a specific extension", inline=False)
+        helpEmbed.add_field(name=f"{prefix}categories", value="Specifies the announce categories", inline=False)
+        helpEmbed.add_field(name=f"{prefix}info", value="Information about a member", inline=False)
+        helpEmbed.add_field(name=f"{prefix}support" ,value="Support Server", inline=False)
+        helpEmbed.add_field(name=f"{prefix}prefix" ,value="Modify the prefix.", inline=False)
+        helpEmbed.add_field(name=f"{prefix}countdown", value="The bot pings you when the timer finishes.", inline=False)
         helpEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
         await ctx.send(embed=helpEmbed)
     else:
