@@ -3,7 +3,6 @@
 from datetime import datetime
 from discord.ext import commands, tasks
 import discord
-import os
 import asyncio
 from random import randint, choice
 from discord.ext.commands import CheckFailure, has_role, has_permissions
@@ -31,6 +30,7 @@ async def get_prefix(client, message):
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_prefix, description=None, intents=intents, case_insensitive=True)
+bot.launch_time = datetime.utcnow()
 bot.remove_command("help")
 
 
@@ -78,8 +78,8 @@ async def on_ready():
 		print(document)
 
 	print(f"{member_count_all} Members")
-	bot.loop.create_task(status_change())
-	bot.loop.create_task(warningDataUpdate())
+	warningDataUpdate.start()
+	status_change.start()
 	bot.load_extension(f'extensions.dbl')
 
 	for guild in bot.guilds:
@@ -127,37 +127,40 @@ async def on_message(message):
 			await bot.process_commands(message)
 		await bot.process_commands(message)
 
+
+@tasks.loop(seconds=10)
 async def status_change():
-	while True:
-		statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
-		statusChosen = choice(statusTable)
-		if statusChosen != "over CORE Support" and statusChosen != "commands":
-			await bot.change_presence(activity=discord.Game(name=statusChosen))
-		elif statusChosen == "over CORE Support":
-			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=statusChosen))
-		else:
-			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=statusChosen))
+	statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
+	statusChosen = choice(statusTable)
+	if statusChosen != "over CORE Support" and statusChosen != "commands":
+		await bot.change_presence(activity=discord.Game(name=statusChosen))
+	elif statusChosen == "over CORE Support":
+		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=statusChosen))
+	else:
+		await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=statusChosen))
 		await asyncio.sleep(10)
 
 
+
+@tasks.loop(minutes=60)
 async def warningDataUpdate():
-	await asyncio.sleep(3600)
-	while True:
-		for guild in bot.guilds:
-			if await bot.warningData.find_by_id(guild.id) == None:
-				await bot.warningData.insert({"_id": guild.id, "name": guild.name})
-				for member in guild.members:
-					dataset = await bot.warningData.find_by_id(guild.id)
-					dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+	for guild in bot.guilds:
+		if await bot.warningData.find_by_id(guild.id) == None:
+			await bot.warningData.insert({"_id": guild.id, "name": guild.name})
+			for member in guild.members:
+				dataset = await bot.warningData.find_by_id(guild.id)
+				memberKey = str(member.id)
+				dataset[memberKey] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
+				await bot.warningData.update_by_id(dataset)
+				print(f"{member.name} in {guild.name} has been updated to warning database.")
+		elif await bot.warningData.find_by_id(guild.id) != None:
+			for member in guild.members:
+				dataset = await bot.warningData.find_by_id(guild.id)
+				memberKey = str(member.id)
+				if not memberKey in dataset:
+					dataset[memberKey] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
 					await bot.warningData.update_by_id(dataset)
 					print(f"{member.name} in {guild.name} has been updated to warning database.")
-			elif await bot.warningData.find_by_id(guild.id) != None:
-				for member in guild.members:
-					dataset = await bot.warningData.find_by_id(guild.id)
-					if dataset[str(member.id)] == None:
-						dataset[str(member.id)] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
-						await bot.warningData.update_by_id(dataset)
-						print(f"{member.name} in {guild.name} has been updated to warning database.")
 			
 
 # Commands
@@ -303,6 +306,10 @@ async def config(ctx, arg1=None, *, arg2=None):
 		embed = discord.Embed(title="Settings and Configurations", description="__**Configurations**__\n\n**debug** | Debug Mode sends errors in the chat rather than the console.\n\n**manualverification** | Manual Verifications enables code-based chat authenticated verification for servers.\n\n**announcement_channel** | Sets the announcement channel.\n\n**verification_role** | Sets the verification role for servers.\n\n**link_automoderation** | The bot can check for links.", color=core_color)
 		embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
 		await ctx.send(embed=embed)
+
+
+
+
 # MeaxisNetwork Commands
 
 @bot.command()
@@ -394,6 +401,25 @@ async def run(ctx, *, cmd):
 							await bot.warningData.update_by_id(dataset)
 							await ctx.send(f"{member.name} in {guild.name} has been updated to warning database.")
 
+
+@bot.command()
+async def uptime(ctx):
+    delta_uptime = datetime.utcnow() - bot.launch_time
+    hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    days, hours = divmod(hours, 24)
+    await ctx.send(f"{days}d, {hours}h, {minutes}m, {seconds}s")
+
+
+
+@bot.command()
+async def restart(ctx):
+	if ctx.author.id == 635119023918415874:
+		status_change.stop()
+		await bot.logout()
+		await asyncio.sleep(30)
+		await bot.login(token)
+		
 
 @bot.command()
 @has_permissions(manage_messages=True)
@@ -529,9 +555,9 @@ async def unmute(ctx, member: discord.Member):
 
 @bot.command()
 async def info(ctx, *, member: discord.Member):
-    fmt = '{0} joined on {0.joined_at} and has {1} roles.'
-    infoEmbed = discord.Embed(title="Information", description=fmt.format(member, len(member.roles)), color=core_color)
-    infoEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+    description = f"Name: {member.display_name}\nNickname: {member.nick}\nID: {member.id}\nRoles: {len(member.roles)}\nJoined At: {member.joined_at}\nStatus: {member.raw_status}\nHighest Role: {member.top_role.name}"
+    infoEmbed = discord.Embed(title="Information", description=description, color=core_color)
+    infoEmbed.set_thumbnail(url=member.avatar_url)
     await ctx.send(embed=infoEmbed)
 
 @bot.command()
@@ -779,6 +805,12 @@ async def verify(ctx):
 			TimeoutEmbed = discord.Embed(title="Timeout!",	description="You have reached the 300 second timeout! Please send another command if you want to continue!", color=core_color)
 			await ctx.send(embed=TimeoutEmbed)
 
+@bot.command(aliases=["shutdown"])
+@commands.is_owner()
+async def close(ctx):
+    await bot.close()
+    print("Bot Closed")
+
 @bot.command()
 async def countdown(ctx, time):
     if str(time).endswith("s"):
@@ -856,7 +888,7 @@ async def help(ctx, arg=None):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.5\n\n- New prefix command which you can change the prefix and view the current prefix for your server. This will also modify the help command to also include the server prefix in the command name rather than the default '!'.\n\n- Verify command fixed and can now function properly.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.6\n\n- Information command now offers more information regarding their member such as their highest role, when they joined the server, their ID and their nickname on the server alongside other things.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
