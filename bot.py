@@ -556,7 +556,7 @@ async def unmute(ctx, member: discord.Member):
 @bot.command()
 async def info(ctx, *, member: discord.Member):
     description = f"Name: {member.display_name}\nNickname: {member.nick}\nID: {member.id}\nRoles: {len(member.roles)}\nJoined At: {member.joined_at}\nStatus: {member.raw_status}\nHighest Role: {member.top_role.name}"
-    infoEmbed = discord.Embed(title="Information", description=description, color=core_color)
+    infoEmbed = discord.Embed(title="information", description=description, color=core_color)
     infoEmbed.set_thumbnail(url=member.avatar_url)
     await ctx.send(embed=infoEmbed)
 
@@ -633,14 +633,14 @@ async def announce(ctx):
 			await channel.send("" , embed=cancelEmbed)
 			return
 		if categoryMsg.content == "placeholder":
-			AnnouncementEmbed = discord.Embed(title="CORE | Information" , description=msg.content ,
+			AnnouncementEmbed = discord.Embed(title="CORE | information" , description=msg.content ,
 
                                               color=core_color)
 			AnnouncementEmbed.set_thumbnail(
                 url="https://media.discordapp.net/attachments/733628287548653669/754109649074257960/768px-Logo_informations.png?width=468&height=468")
 
 		elif categoryMsg.content == "information":
-			AnnouncementEmbed = discord.Embed(title="CORE | Information" , description=msg.content ,
+			AnnouncementEmbed = discord.Embed(title="CORE | information" , description=msg.content ,
 
                                               color=discord.Color.from_rgb(0 , 0 , 255))
 			AnnouncementEmbed.set_thumbnail(
@@ -723,7 +723,7 @@ async def kick(ctx, member : discord.Member, *, reason=None):
 @has_permissions(ban_members=True) 
 async def ban(ctx, member : discord.Member, *, reason=None):
     await member.ban(reason=reason)
-    banEmbed = discord.Embed(title="Successfully Banned.", description=member.display_name + " was banned for: " + reason, color=core_color)
+    banEmbed = discord.Embed(title="Successfully Banned", description=member.display_name + " was banned for: " + reason, color=core_color)
     if reason == None:
         banEmbed.description = member.display_name + "was banned successfully."
     await ctx.send(embed=banEmbed)
@@ -868,7 +868,7 @@ async def help(ctx, arg=None):
 		helpEmbed.add_field(name=f"{prefix}load", value="Loads a specific extension", inline=False)
 		helpEmbed.add_field(name=f"{prefix}unload", value="Unloads a specific extension", inline=False)
 		helpEmbed.add_field(name=f"{prefix}categories", value="Specifies the announce categories", inline=False)
-		helpEmbed.add_field(name=f"{prefix}info", value="Information about a member", inline=False)
+		helpEmbed.add_field(name=f"{prefix}info", value="information about a member", inline=False)
 		helpEmbed.add_field(name=f"{prefix}support" ,value="Support Server", inline=False)
 		helpEmbed.add_field(name=f"{prefix}prefix" ,value="Modify the prefix.", inline=False)
 		helpEmbed.add_field(name=f"{prefix}countdown", value="The bot pings you when the timer finishes.", inline=False)
@@ -888,7 +888,7 @@ async def help(ctx, arg=None):
 
 @bot.command()
 async def version(ctx):
-    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.6\n\n- Information command now offers more information regarding their member such as their highest role, when they joined the server, their ID and their nickname on the server alongside other things.", color=core_color)
+    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.6\n\n- information command now offers more information regarding their member such as their highest role, when they joined the server, their ID and their nickname on the server alongside other things.", color=core_color)
     updateEmbed.set_thumbnail(url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
     await ctx.send(embed=updateEmbed)
 
