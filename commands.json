@@ -2,147 +2,147 @@
 
 
 	"help":{
-		"name": "!help",
+		"name": "help",
 		"description": "Help Command for CORE",
-		"syntax": "!help [command]"
+		"syntax": "help [command]"
 	},
 
 	"countdown":{
-		"name": "!countdown",
+		"name": "countdown",
 		"description": "The bot pings you when the timer finishes.",
-		"syntax": "!countdown [time]"
+		"syntax": "countdown [time]"
 	},
 
 
 	"rps":{
-		"name": "!rps",
+		"name": "rps",
 		"description": "A command that means you can play rock paper scissors with the bot.",
-		"syntax": "!rps [choice]*"
+		"syntax": "rps [choice]*"
 	},
 
 	"maths":{
-		"name": "!maths",
+		"name": "maths",
 		"description": "A command that you can give the bot so that the bot can give you an answer.",
-		"syntax": "!maths operation [add/subtract/multiply/divide] [number] [number]"
+		"syntax": "maths operation [add/subtract/multiply/divide] [number] [number]"
 	},
 
 	"roll":{
-		"name": "!roll",
+		"name": "roll",
 		"description": "A command that chooses a random person from the server, useful for giveaways.",
-		"syntax": "!roll"
+		"syntax": "roll"
 	},
 
 	"purge":{
-		"name": "!purge",
+		"name": "purge",
 		"description": "A command that deletes a certain amount of messages in the current channel.",
-		"syntax": "!purge [amount]"
+		"syntax": "purge [amount]"
 	},
 
 	"version":{
-		"name": "!version",
+		"name": "version",
 		"description": "A command that tells you the patch notes for the most recent update.",
-		"syntax": "!version"
+		"syntax": "version"
 	},
 
 	"kick":{
-		"name": "!kick",
+		"name": "kick",
 		"description": "A command that kicks the mentioned user.",
-		"syntax": "!kick [member]"
+		"syntax": "kick [member]"
 	},
 
 	"ban":{
-		"name": "!ban",
+		"name": "ban",
 		"description": "A command that bans the mentioned user.",
-		"syntax": "!ban [member]"
+		"syntax": "ban [member]"
 	},
 
 	"mute":{
-		"name": "!mute",
+		"name": "mute",
 		"description": "A command that mutes the mentioned user.",
-		"syntax": "!mute [member] [time]"
+		"syntax": "mute [member] [time]"
 	},
 
 	"unmute":{
-		"name": "!unmute",
+		"name": "unmute",
 		"description": "A command that unmutes the mentioned user.",
-		"syntax": "!unmute [member]"
+		"syntax": "unmute [member]"
 	},
 
 	"announce":{
-		"name": "!announce",
+		"name": "announce",
 		"description": "A command that shows asks the author questions about the announcement and then sends it.",
-		"syntax": "!announce"
+		"syntax": "announce"
 	},
 
 	"load":{
-		"name": "!load",
+		"name": "load",
 		"description": "A command that loads an extension provided.",
-		"syntax": "!load [extension]"
+		"syntax": "load [extension]"
 	},
 
 	"unload":{
-		"name": "!unload",
+		"name": "unload",
 		"description": "A command that unloads an extension provided.",
-		"syntax": "!unload [extension]"
+		"syntax": "unload [extension]"
 	},
 
 	"categories":{
-		"name": "!categories",
+		"name": "categories",
 		"description": "A command that shows you the announcement categories required for the announce command.",
-		"syntax": "!categories"
+		"syntax": "categories"
 	},
 
 	"info":{
-		"name": "!info",
+		"name": "info",
 		"description": "A command that shows you information about the mentioned user.",
-		"syntax": "!info [user]"
+		"syntax": "info [user]"
 	},
 
 	"support":{
-		"name": "!support",
+		"name": "support",
 		"description": "A command that invites you to the support server.",
-		"syntax": "!support"
+		"syntax": "support"
 	},
 
 	"invite":{
-		"name": "!invite",
+		"name": "invite",
 		"description": "A command that gives you the invite link to invite the bot.",
-		"syntax": "!invite"
+		"syntax": "invite"
 	},
 
 	"config":{
-		"name": "!config",
+		"name": "config",
 		"description": "A command that changes the configuration for the bot on your server.",
-		"syntax": "!config [configuration] [on/off]"
+		"syntax": "config [configuration] [on/off]"
 	},
 
 	"profile":{
-		"name": "!profile",
+		"name": "profile",
 		"description": "A command that contacts the MN API so that you can get information about your own profile.",
-		"syntax": "!profile"
+		"syntax": "profile"
 	},
 
 	"leafy":{
-		"name": "!leafy",
+		"name": "leafy",
 		"description": "A command that checks the leafy API to see if it is working correctly.",
-		"syntax": "!leafy"
+		"syntax": "leafy"
 	},
 
 	"funfact":{
-		"name": "!funfact",
+		"name": "funfact",
 		"description": "A command that gets a random funfact from the MN API.",
-		"syntax": "!funfact"
+		"syntax": "funfact"
 	},
 
 	"verify":{
-		"name": "!verify",
+		"name": "verify",
 		"description": "A command that verifies you and gives you a role.",
-		"syntax": "!verify"
+		"syntax": "verify"
 	},
 
 	"duty":{
-		"name": "!duty",
+		"name": "duty",
 		"description": "A command that you can use to manage statuses for staff members.",
-		"syntax": "!duty"
+		"syntax": "duty"
 	}
 }}
