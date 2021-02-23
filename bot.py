@@ -1,32 +1,29 @@
 # Importing Packages
-
 from datetime import datetime
 from discord.ext import commands, tasks
-import discord
-import asyncio
-import random
-from random import randint, choice
 from discord.ext.commands import CheckFailure, has_role, has_permissions
 from discord.utils import get
-import requests
-import logging
-import json
-import string
-from utils.mongo import Document
-import motor.motor_asyncio
-import traceback
-
-import textwrap
-import io
-import contextlib
-import traceback
+from random import randint, choice
 from traceback import format_exception
-
+from utils.mongo import Document
 from utils.utils import clean_code, Pag
 
+import asyncio
+import contextlib
+import discord
+import io
+import json
+import logging
+import motor.motor_asyncio
+import requests
+import random
+import string
+import traceback
+import textwrap
+import traceback
+
+
 # Creation & Configuration
-
-
 token = None
 mongodbtoken = None
 
@@ -34,6 +31,9 @@ with open("secrets.json", "r") as f:
 	secret_data = json.load(f)
 	token = secret_data["BOT-TOKEN"]
 	mongodbtoken = secret_data["MONGODB-TOKEN"]
+	
+if token == None || mongodbtoken = None:
+	print('The secrets.json file is not supplied.')
 
 
 async def get_prefix(client, message):
@@ -55,20 +55,13 @@ bot.remove_command("help")
 def get_launchtime():
 	return bot.launch_time
 
-
-
-
 # Variables
-
-
 core_color = discord.Color.from_rgb(30, 144, 255)
 
 # Logging
-
 logging.basicConfig(level=logging.WARNING)
 
 # Events
-
 @bot.event
 async def on_ready():
 	member_count_all = 0
@@ -250,4 +243,8 @@ async def _eval(ctx, *, code):
 
 	await pager.start(ctx)
 
-bot.run(token)
+try:
+	bot.run(token)
+except Exception as e:
+	print('Failed to start the bot. Stack trace:')
+	print(e)
