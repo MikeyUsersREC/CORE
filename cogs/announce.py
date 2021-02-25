@@ -3,6 +3,8 @@ from discord.ext import commands
 from discord.ext.commands import has_permissions
 import asyncio
 
+core_color = discord.Color.from_rgb(30, 144, 255)
+
 class Announcements(commands.Cog):
 
 	def __init__(self, bot):
@@ -15,22 +17,22 @@ class Announcements(commands.Cog):
 	@commands.command(name="announce", aliases=["announcement", "sendannouncement"], description="Sends an embed with the parameters you send to the designated announcement channel.", usage="announce")
 	@has_permissions(manage_channels=True) 
 	async def announce(self, ctx):
-		dataset = await bot.config.find_by_id(ctx.guild.id)
+		dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 		announcement_channel = dataset["announcement_channel"]
 		channel = ctx.message.channel
 		announcements = discord.utils.get(ctx.message.channel.guild.text_channels , name=announcement_channel)
 		areSureEmbed = discord.Embed(title="Announcement" , description="What is the body of the announcement?", color=core_color)
-		await ctx.send("" , embed=areSureEmbed)
+		await ctx.send(embed=areSureEmbed)
 
 		def check(m):
 			return m.channel == channel and m.author == ctx.message.author
 		try:
-			msg = await bot.wait_for('message' , check=check , timeout=120)
+			msg = await self.bot.wait_for('message' , check=check , timeout=120)
 			if msg.content == "cancel":
 				cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
 	                                            color=core_color)
-				await channel.send("" , embed=cancelEmbed)
+				await channel.send(embed=cancelEmbed)
 				return
 			CategoryEmbed = discord.Embed(title="Announcement" ,
 	                                                 	description="What catgegory is your announcement? Categories: information, warning, important",
@@ -44,7 +46,7 @@ class Announcements(commands.Cog):
 		def yesCheck(m):
 			return m.channel == channel and m.author == ctx.message.author
 		try:
-			categoryMsg = await bot.wait_for('message' , check=check , timeout=120)
+			categoryMsg = await self.bot.wait_for('message' , check=check , timeout=120)
 			if msg.content == "cancel":
 				cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!", color=core_color)
 				await channel.send("" , embed=cancelEmbed)
@@ -59,7 +61,7 @@ class Announcements(commands.Cog):
 	                                         color=core_color)
 			await channel.send("" , embed=TimeoutEmbed)
 		try:
-			Message = await bot.wait_for('message' , check=yesCheck , timeout=120)
+			Message = await self.bot.wait_for('message' , check=yesCheck , timeout=120)
 			if Message.content == "cancel" or Message.content == "no":
 				cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!" ,
 	                                            color=core_color)

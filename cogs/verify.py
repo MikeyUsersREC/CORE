@@ -1,6 +1,9 @@
 import discord
 from discord.ext import commands
 
+from discord.utils import get
+core_color = discord.Color.from_rgb(30, 144, 255)
+
 class Verififcation(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -8,7 +11,7 @@ class Verififcation(commands.Cog):
 
 	@commands.command(name="verify", description="A command for servers to use so that they can add a verification stage to prevent alternative accounts in their server.", aliases=["verification"], usage="verify")	
 	async def verify(self, ctx):
-		dataset = await bot.config.find_by_id(ctx.guild.id)
+		dataset = await self.bot.config.find_by_id(ctx.guild.id)
 		verification_role = dataset["verification_role"]
 
 		if get(ctx.guild.roles, name=verification_role) == None:

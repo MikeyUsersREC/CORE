@@ -18,22 +18,22 @@ class Config(commands.Cog):
 		if arg1 == "debug":
 			if arg2 == "on":
 
-				dataset = await bot.config.find_by_id(ctx.guild.id)
+				dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 				dataset["debug_mode"] = True
 
-				await bot.config.update_by_id(dataset)
+				await self.bot.config.update_by_id(dataset)
 
 				embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 				embed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=embed)
 
 			elif arg2 == "off":
-				dataset = await bot.config.find_by_id(ctx.guild.id)
+				dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 				dataset["debug_mode"] = False
 
-				await bot.config.update_by_id(dataset)
+				await self.bot.config.update_by_id(dataset)
 
 				embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 				embed.set_thumbnail(url=ctx.bot.user.avatar_url)
@@ -41,41 +41,41 @@ class Config(commands.Cog):
 
 		if arg1 == "manualverification":
 			if arg2 == "on" or arg2 == "true":
-				dataset = await bot.config.find_by_id(ctx.guild.id)
+				dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 				dataset["manualverification"] = True
 
-				await bot.config.update_by_id(dataset)
+				await self.bot.config.update_by_id(dataset)
 
 				embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 				embed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=embed)
 			else:
-				dataset = await bot.config.find_by_id(ctx.guild.id)
+				dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 				dataset["manualverification"] = False
 
-				await bot.config.update_by_id(dataset)
+				await self.bot.config.update_by_id(dataset)
 				embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 				embed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=embed)
 
 		if arg1 == "announcement_channel":
-			dataset = await bot.config.find_by_id(ctx.guild.id)
+			dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 			dataset["announcement_channel"] = arg2
 
-			await bot.config.update_by_id(dataset)
+			await self.bot.config.update_by_id(dataset)
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url=ctx.bot.user.avatar_url)
 			await ctx.send(embed=embed)
 
 		if arg1 == "verification_role":
-			dataset = await bot.config.find_by_id(ctx.guild.id)
+			dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 			dataset["verification_role"] = arg2
 
-			await bot.config.update_by_id(dataset)
+			await self.bot.config.update_by_id(dataset)
 
 			embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 			embed.set_thumbnail(url=ctx.bot.user.avatar_url)
@@ -83,21 +83,21 @@ class Config(commands.Cog):
 
 		if arg1 == "link_automoderation":
 			if arg2 == "on":
-				dataset = await bot.config.find_by_id(ctx.guild.id)
+				dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 				dataset["link_automoderation"] = True
 
-				await bot.config.update_by_id(dataset)
+				await self.bot.config.update_by_id(dataset)
 				embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 				embed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=embed)
 
 			elif arg2 == "off":
-				dataset = await bot.config.find_by_id(ctx.guild.id)
+				dataset = await self.bot.config.find_by_id(ctx.guild.id)
 
 				dataset["link_automoderation"] = False
 
-				await bot.config.update_by_id(dataset)
+				await self.bot.config.update_by_id(dataset)
 
 				embed = discord.Embed(title="Configuration Changed", description="The configuration has been changed", color=core_color)
 				embed.set_thumbnail(url=ctx.bot.user.avatar_url)

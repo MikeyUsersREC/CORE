@@ -1,5 +1,9 @@
 import discord
 from discord.ext import commands
+from datetime import datetime
+
+core_color = discord.Color.from_rgb(30, 144, 255)
+
 
 class Information(commands.Cog):
 	def __init__(self, bot):
@@ -23,7 +27,7 @@ class Information(commands.Cog):
 
 	@commands.command(name="uptime", description="Tells you how long CORE has been online.", usage="invite")
 	async def uptime(self, ctx):
-	    delta_uptime = datetime.utcnow() - bot.launch_time
+	    delta_uptime = datetime.utcnow() - self.bot.launch_time
 	    hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
 	    minutes, seconds = divmod(remainder, 60)
 	    days, hours = divmod(hours, 24)
@@ -31,7 +35,7 @@ class Information(commands.Cog):
 
 	@commands.command(name="version", description="Gives you information about the most recent update", usage="version")
 	async def version(self, ctx):
-	    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.8\n\n- Added an 8ball command.\n- Added a better help command.\n- Added a better way of updating CORE without having to restart it.", color=core_color)
+	    updateEmbed = discord.Embed(title="Most recent version:", description="Version 1.1.9\n\n- Fixed some bugs.\n- Added image manipulation.", color=core_color)
 	    updateEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
 	    await ctx.send(embed=updateEmbed)
 

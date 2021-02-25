@@ -18,10 +18,18 @@ class Fun(commands.Cog):
 
 
 	@commands.command(name="8ball", aliases=["eightball", "responsegenerator"], description="The 8ball will generate a response to a question that you give it.", usage="8ball <Question>")
-	async def eightball(self, ctx):
-		prophecyList = ["Yes.", "No.", "You should.", "You shouldn't.", "You should not do that.", "You should do that.", "Because it is.", "They have chosen it that way.", "You have chosen it to be like this."]
-		choice = random.choice(prophecyList)
-		await ctx.send(f"The 8ball has responded: {choice}")
+	async def eightball(self, ctx, *, question):
+		import requests
+		request = requests.get(f"https://8ball.delegator.com/magic/JSON/{question}")
+		requestJSON = request.json()
+		magic = requestJSON["magic"]
+		answer = magic["answer"]
+		questionOutput = magic["question"]
+		embed = discord.Embed(title="The 8ball has responded.", color=core_color)
+		embed.add_field(name="Question", value=questionOutput, inline=False)
+		embed.add_field(name="Answer", value=answer, inline=False)
+		embed.set_thumbnail(url=self.bot.user.avatar_url)
+		await ctx.send(embed=embed)
 
 
 	@commands.command(name="rng", aliases=["randomnumber", "randomnumbergenerator"], description="Generates a random number from the numbers you provide.")

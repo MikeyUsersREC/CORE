@@ -37,7 +37,10 @@ async def robloxsearch(ctx, arg1=None):
 
 			embed.add_field(name="Username", value=f"{username}", inline=False)
 			embed.add_field(name="User ID", value=f"{userid}", inline=False)
-			embed.add_field(name="Description", value=f"{description}", inline=False)
+            try:
+                embed.add_field(name="Description", value=f"{description}", inline=False)
+            except:
+                embed.add_field(name="Description", value="None", inline=False)
 			embed.add_field(name="Created", value=f"{created}", inline=False)
 
 			if isBanned == False:
@@ -49,17 +52,18 @@ async def robloxsearch(ctx, arg1=None):
 			if isOnline == True:
 				embed.add_field(name="IsOnline", value="Online", inline=False)
 			else:
-				embed.add_field(name="IsOnline", value="Offline", inline=False)
-		
-			embed.add_field(name="Status", value=f"{status}", inline=False)
-
+                embed.add_field(name="IsOnline", value="Offline", inline=False)
+            try:
+                embed.add_field(name="Status", value=f"{status}", inline=False)
+            except:
+                embed.add_field(nsme="Status", value="None", inline=False)
 
 
 
 			embed.color = core_color
 			headshot_url = f"https://www.roblox.com/headshot-thumbnail/image?userId={userid}&width=420&height=420&format=png"
 			embed.set_thumbnail(url=headshot_url)
-			embed.set_footer(text="Roblox | CORE", icon_url="https://cdn.discordapp.com/avatars/734495486723227760/dfc1991dc3ea8ec0f7d4ac7440e559c3.png?size=128")
+			embed.set_footer(text="Roblox | CORE", icon_url=self.bot.user.avatar_url)
 			await ctx.send(embed=embed)
 
 

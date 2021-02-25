@@ -6,8 +6,6 @@ import discord
 from discord.ext import commands
 
 
-
-
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,18 +15,18 @@ class Help(commands.Cog):
         print(f"{self.__class__.__name__} Cog has been loaded\n-----")
 
     @commands.command(
-        name='help', aliases=['h', 'commands'], description="The help command!"
+        name='help', aliases=['h', 'commands'], description="Help Command for CORE"
     )
     async def help(self, ctx, cog="1"):
         helpEmbed = discord.Embed(
             title="Help Command", color=discord.Color.from_rgb(30, 144, 255)
         )
-        helpEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
+        helpEmbed.set_thumbnail(url=self.bot.user.avatar_url)
 
         # Get a list of all our current cogs & rmeove ones without commands
         cogs = [c for c in self.bot.cogs.keys()]
-        cogs.remove('LCRP')
         cogs.remove('TopGG')
+        cogs.remove('LCRP')
 
         totalPages = math.ceil(len(cogs) / 4)
 

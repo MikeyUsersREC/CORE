@@ -2,27 +2,27 @@
 
 from datetime import datetime
 from discord.ext import commands, tasks
-import discord
-import asyncio
-import random
-from random import randint, choice
 from discord.ext.commands import CheckFailure, has_role, has_permissions
 from discord.utils import get
-import requests
-import logging
-import json
-import string
-from utils.mongo import Document
-import motor.motor_asyncio
-import traceback
-
-import textwrap
-import io
-import contextlib
-import traceback
+from random import randint, choice
 from traceback import format_exception
-
+from utils.mongo import Document
 from utils.utils import clean_code, Pag
+
+import asyncio
+import contextlib
+import discord
+import io
+import json
+import logging
+import motor.motor_asyncio
+import requests
+import random
+import string
+import traceback
+import textwrap
+import traceback
+
 
 # Creation & Configuration
 
@@ -36,6 +36,9 @@ with open("secrets.json", "r") as f:
 	mongodbtoken = secret_data["MONGODB-TOKEN"]
 
 
+if token == None or mongodbtoken == None:
+	print('The secrets.json file is not supplied.')
+
 async def get_prefix(client, message):
 	mongo = motor.motor_asyncio.AsyncIOMotorClient(mongodbtoken)
 	db = mongo["core"]
@@ -48,14 +51,12 @@ async def get_prefix(client, message):
 
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=get_prefix, description=None, intents=intents, case_insensitive=True)
+bot = commands.Bot(command_prefix=get_prefix, description=None, intents=intents, case_insensitive=True, help_command=None)
 bot.launch_time = datetime.utcnow()
-bot.remove_command("help")
+
 
 def get_launchtime():
 	return bot.launch_time
-
-
 
 
 # Variables
@@ -84,6 +85,15 @@ async def on_ready():
 	bot.config = Document(bot.db, "info")
 	bot.warningData = Document(bot.db, "warnings")
 	bot.prefixData = Document(bot.db, "prefixes")
+
+	bot.reaction_roles = None
+
+	with open("reaction_roles.json", "r") as f:
+		bot.reaction_roles = json.load(f)
+		bot.reaction_file = f
+
+
+
 	for document in await bot.config.get_all():
 		print(document)
 
@@ -113,8 +123,9 @@ async def on_ready():
 	bot.load_extension('cogs.lcrp')
 	bot.load_extension('cogs.announce')
 	bot.load_extension('cogs.moderation')
+	bot.load_extension('cogs.reactionroles')
+	bot.load_extension('cogs.imagemanipulation')
 	
-
 	for guild in bot.guilds:
 
 		print(f"{str(guild.id)} | {str(guild.name)}")
@@ -185,30 +196,18 @@ async def warningDataUpdate():
 @bot.command(name="reloadcogs")
 @commands.is_owner()
 async def reloadcogs(ctx):
-	bot.unload_extension('cogs.dbl')
-	bot.unload_extension('cogs.help')
-	bot.unload_extension('cogs.utility')
-	bot.unload_extension('cogs.fun')
-	bot.unload_extension('cogs.verify')
-	bot.unload_extension('cogs.creator')
-	bot.unload_extension('cogs.info')
-	bot.unload_extension('cogs.config')
-	bot.unload_extension('cogs.lcrp')
-	bot.unload_extension('cogs.announce')
-	bot.unload_extension('cogs.moderation')
-
-	bot.load_extension('cogs.dbl')
-	bot.load_extension('cogs.help')
-	bot.load_extension('cogs.utility')
-	bot.load_extension('cogs.fun')
-	bot.load_extension('cogs.verify')
-	bot.load_extension('cogs.creator')
-	bot.load_extension('cogs.info')
-	bot.load_extension('cogs.config')
-	bot.load_extension('cogs.lcrp')
-	bot.load_extension('cogs.announce')
-	bot.load_extension('cogs.moderation')
-
+	bot.reload_extension('cogs.dbl')
+	bot.reload_extension('cogs.help')
+	bot.reload_extension('cogs.utility')
+	bot.reload_extension('cogs.fun')
+	bot.reload_extension('cogs.verify')
+	bot.reload_extension('cogs.creator')
+	bot.reload_extension('cogs.info')
+	bot.reload_extension('cogs.config')
+	bot.reload_extension('cogs.lcrp')
+	bot.reload_extension('cogs.announce')
+	bot.reload_extension('cogs.moderation')
+	bot.reload_extension('cogs.reactionroles')
 
 
 @bot.command(name="eval", aliases=["exec", "run"], description="Evaluates and runs code on behalf of the bot.", usage="eval <Code>")
@@ -249,5 +248,30 @@ async def _eval(ctx, *, code):
 		)
 
 	await pager.start(ctx)
+    
+@bot.command(name="load", aliases=["loadextension", "loadext"], description="Loads the extension you provide.", usage="load <Extension>")
+async def load(ctx, extension):
+    extensionLowered = extension.lower()
+    try:
+        bot.load_extension(f'extensions.{extensionLowered}')
+        embed = discord.Embed(title="Extension loaded!", description=f"{extensionLowered}.py was loaded.", color=core_color)
+    except:
+        embed = discord.Embed(title="Extension could not be loaded!", description=f"{extensionLowered}.py could not be loaded as it does not exist.", color=core_color)
+    embed.set_thumbnail(url=ctx.bot.user.avatar_url)
+    await ctx.send(embed=embed)
 
-bot.run(token)
+@bot.command(name="unload", aliases=["unloadextension", "unloadext"], description="Unloads the extension you provide.", usage="unload <Extension>")
+async def unload(ctx, extension):
+    bot.unload_extension(f'extensions.{extension}')
+
+@bot.command(name="reload", aliases=["reloadextension", "reloadext"], description="Reloads the extension you provide.", usage="reload <Extension>")
+async def reload(ctx, extension):
+	bot.unload_extension(f'extensions.{extension}')
+	bot.load_extension(f'extensions.{extension}')
+        
+
+try:
+	bot.run(token)
+except Exception as e:
+	print('Failed to start the bot. Stack trace:')
+	print(e)

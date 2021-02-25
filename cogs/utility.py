@@ -65,25 +65,7 @@ class Utility(commands.Cog):
 			await bot.prefixData.update_by_id(dataset)
 			await ctx.send(f"My prefix has been changed to `{arg}`")
 
-	@commands.command(name="load", aliases=["loadextension", "loadext"], description="Loads the extension you provide.", usage="load <Extension>")
-	async def load(self, ctx, extension):
-	    extensionLowered = extension.lower()
-	    try:
-	    	bot.load_extension(f'extensions.{extensionLowered}')
-	    	embed = discord.Embed(title="Extension loaded!", description=f"{extensionLowered}.py was loaded.", color=core_color)
-	    except Exception as e:
-	    	embed = discord.Embed(title="Extension could not be loaded!", description=f"{extensionLowered}.py could not be loaded as it does not exist.", color=core_color)
-	    embed.set_thumbnail(url=ctx.bot.user.avatar_url)
-	    await ctx.send(embed=embed)
 
-	@commands.command(name="unload", aliases=["unloadextension", "unloadext"], description="Unloads the extension you provide.", usage="unload <Extension>")
-	async def unload(self, ctx, extension):
-	    bot.unload_extension(f'extensions.{extension}')
-
-	@commands.command(name="reload", aliases=["reloadextension", "reloadext"], description="Reloads the extension you provide.", usage="reload <Extension>")
-	async def reload(self, ctx, extension):
-	    bot.unload_extension(f'extensions.{extension}')
-	    bot.load_extension(f'extensions.{extension}')
 
 
 def setup(bot):
