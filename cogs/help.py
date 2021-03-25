@@ -17,7 +17,7 @@ class Help(commands.Cog):
     @commands.command(
         name='help', aliases=['h', 'commands'], description="Help Command for CORE"
     )
-    async def help(self, ctx, cog="1"):
+    async def help(self, ctx, *, cog="1"):
         helpEmbed = discord.Embed(
             title="Help Command", color=discord.Color.from_rgb(30, 144, 255)
         )
@@ -25,8 +25,13 @@ class Help(commands.Cog):
 
         # Get a list of all our current cogs & rmeove ones without commands
         cogs = [c for c in self.bot.cogs.keys()]
-        cogs.remove('TopGG')
-        cogs.remove('LCRP')
+
+        ExtensionsToRemove = ["ERLC", "MeaxisNetwork", "Roblox Commands", "Speedrun Commands", "TopGG"]
+        try:
+            for item in ExtensionsToRemove:
+                cogs.remove(item)
+        except:
+            pass
 
         totalPages = math.ceil(len(cogs) / 4)
 

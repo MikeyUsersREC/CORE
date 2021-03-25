@@ -72,7 +72,7 @@ class Moderation(commands.Cog):
             banEmbed.description = member.display_name + "was banned successfully."
         await ctx.send(embed=banEmbed)
 
-    @commands.command(name="purge", aliases=["delete", "purgechannel", "purgemessages", "deletemessages", "p"], description="Deletes a certain amount of messages in the current channel.", usage="purge <Amount>")
+    @commands.command(name="purge", aliases=["delete", "purgechannel", "purgemessages", "deletemessages", "pu"], description="Deletes a certain amount of messages in the current channel.", usage="purge <Amount>")
     @has_permissions(manage_channels=True)
     async def purge(self, ctx, amount=15):
         new_amount = amount + 1
