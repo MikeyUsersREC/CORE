@@ -1,51 +1,54 @@
 import discord
 from discord.ext import commands
+import requests
+from datetime import datetime
 
 mn_color = discord.Color.from_rgb(35, 35, 35)
 meaxisnetwork_url = "https://meaxisnetwork.net/assets/images/square_logo.png"
 
 
 class MeaxisNetwork(commands.Cog):
-	 def __init__(self, bot):
+	def __init__(self, bot):
 		self.bot = bot
 
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print(f"{self.__class__.__name__} Cog has been loaded\n-----")
 
+
+	def is_an_enabled_guild():
+		async def predicate(ctx):
+			dataset = await ctx.bot.enabledPerGuildExtension.find_by_id(ctx.guild.id)
+			try:
+				return dataset != None and dataset["meaxisnetwork"]
+			except:
+				for key, value in dataset.items():
+					if key == "meaxisnetwork" and value == True:
+						return True
+		return commands.check(predicate)
+
 	@commands.command()
-	async def profile(ctx):
-		payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "username"}
-		usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-		usernameJSON = usernameRequest.json()
-		username = usernameJSON["message"]
+	@is_an_enabled_guild()
+	async def profile(self, ctx):
+		APIRequest = requests.get(f"https://api.meaxisnetwork.net/v3/users/search/?query={ctx.author.id}&from=discord")
+		APIJSON = APIRequest.json()
+		username = APIJSON["username"]
+		embed = discord.Embed(title = username , color = mn_color)
+		for key, value in APIJSON.items():
+			vars()[key.capitalize()] = value
+			if key != "joinedOn" and value != "":
+				embed.add_field(name = key.capitalize(), value = f"{value}", inline = False)
+			if key == "joinedOn":
+				embed.add_field(name = key.capitalize(), value = f"{datetime.fromtimestamp(value)}", inline = False)
 
-		payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "description"}
-		descriptionRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-		descriptionJSON = descriptionRequest.json()
-		description = descriptionJSON["message"]
-		descriptionFixed = description.replace("\r", "")
+		avatar = APIJSON["avatar"].replace("\\", "")
 
-		payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "profilepicture"}
-		avatarRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-		avatarJSON = avatarRequest.json()
-		avatarURLSource = descriptionJSON["message"]
-		avatarURLString = str(avatarURLSource)
-		avatarURLFixed = avatarURLString.replace(r'\/','/')
-
-		payload = {"discordid": ctx.author.id, "secret": "t6ovhm._7-ng9iry-1602428551-gy1pn37w.u06x8_q", "scope": "id"}
-		accountIDRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/fromdiscord/", params=payload)
-		accountIDJSON = accountIDRequest.json()
-		AccountID = accountIDJSON["message"]
-
-		embed = discord.Embed(title=username, color=mn_color)
-		embed.add_field(name = "Description", value = description, inline = False)
-		embed.add_field(name = "Account ID", value = AccountID, inline = False)
-		embed.set_thumbnail(url=meaxisnetwork_url)
+		embed.set_thumbnail(url=avatar)
 		await ctx.send(embed=embed)
 
 	@commands.command()
-	async def funfact(ctx):
+	@is_an_enabled_guild()
+	async def funfact(self, ctx):
 		funfactRequest = requests.get("https://api.meaxisnetwork.net/v2/funfact/")
 		funfactJSON = funfactRequest.json()
 		funfact = funfactJSON["text"]
@@ -59,7 +62,8 @@ class MeaxisNetwork(commands.Cog):
 		await ctx.send(embed=embed)
 
 	@commands.command()
-	async def leafy(ctx):
+	@is_an_enabled_guild()
+	async def leafy(self, ctx):
 		leafyRequest = requests.get("https://api.meaxisnetwork.net/v2/leafy/")
 		embed = discord.Embed(title=f"Leafy API Status", color=mn_color)
 		if leafyRequest.status_code == 200:
@@ -71,15 +75,33 @@ class MeaxisNetwork(commands.Cog):
 		return
 
 	@commands.command()
-	async def finduser(ctx, username):
-		payload = {"username": username}
-		usernameRequest = requests.get("https://api.meaxisnetwork.net/v2/accounts/exists/", params=payload)
-		usernameJSON = usernameRequest.json()
-		usernameResult = usernameJSON["message"]
-		embed = discord.Embed(title="User Result", color=mn_color)
-		embed.add_field(name = "Username Entered:", value = username, inline = False)
-		embed.add_field(name = "Result:", value = usernameResult, inline = False)
-		embed.set_thumbnail(url=meaxisnetwork_url)
+	@is_an_enabled_guild()
+	async def finduser(self, ctx, *, username):
+		APIRequest = requests.get(f"https://api.meaxisnetwork.net/v3/users/search/?query={username}&from=username")
+		APIJSON = None
+		try:
+			APIJSON = APIRequest.json()
+			APIJSON["username"]
+		except:
+			member = discord.utils.get(ctx.guild.members, name = username)
+			if member == None:
+				member = await ctx.guild.fetch_member(username.strip("<!@>"))
+				APIJSON = requests.get(f"https://api.meaxisnetwork.net/v3/users/search?from=discord&query={member.id}").json()
+			else:
+				APIJSON = requests.get(f"https://api.meaxisnetwork.net/v3/users/search?from=discord&query={member.id}").json()
+		username = APIJSON["username"]
+		embed = discord.Embed(title = username , color = mn_color)
+		for key, value in APIJSON.items():
+			vars()[key.capitalize()] = value
+			if key != "joinedOn" and value != "":
+				embed.add_field(name = key.capitalize(), value = f"{value}", inline = False)
+			if key == "joinedOn":
+				embed.add_field(name = key.capitalize(), value = f"{datetime.fromtimestamp(value)}", inline = False)
+
+		avatar = APIJSON["avatar"].replace("\\", "")
+
+
+		embed.set_thumbnail(url=avatar)
 		await ctx.send(embed=embed)
 
 def setup(bot):

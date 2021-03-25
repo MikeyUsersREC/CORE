@@ -8,6 +8,7 @@ from random import randint, choice
 from traceback import format_exception
 from utils.mongo import Document
 from utils.utils import clean_code, Pag
+import gpiozero
 
 import asyncio
 import contextlib
@@ -62,7 +63,7 @@ def get_launchtime():
 # Variables
 
 
-core_color = discord.Color.from_rgb(30, 144, 255)
+bot.core_color = discord.Color.from_rgb(30, 144, 255)
 
 # Logging
 
@@ -86,13 +87,7 @@ async def on_ready():
 	bot.warningData = Document(bot.db, "warnings")
 	bot.prefixData = Document(bot.db, "prefixes")
 
-	bot.reaction_roles = None
-
-	with open("reaction_roles.json", "r") as f:
-		bot.reaction_roles = json.load(f)
-		bot.reaction_file = f
-
-
+	bot.enabledPerGuildExtension = Document(bot.db, "enabledExtensions")
 
 	for document in await bot.config.get_all():
 		print(document)
@@ -120,16 +115,21 @@ async def on_ready():
 	bot.load_extension('cogs.creator')
 	bot.load_extension('cogs.info')
 	bot.load_extension('cogs.config')
-	bot.load_extension('cogs.lcrp')
 	bot.load_extension('cogs.announce')
 	bot.load_extension('cogs.moderation')
-	bot.load_extension('cogs.reactionroles')
 	bot.load_extension('cogs.imagemanipulation')
+	bot.load_extension('cogs.auditlog')
+	bot.load_extension('cogs.python')
+
+	bot.load_extension('extensions.meaxisnetwork')
+	bot.load_extension('extensions.speedrun')
+	bot.load_extension('extensions.roblox')
+	bot.load_extension('extensions.erlc')
 	
 	for guild in bot.guilds:
 
 		print(f"{str(guild.id)} | {str(guild.name)}")
-
+	
 
 @bot.event
 async def on_guild_join(guild):
@@ -141,11 +141,16 @@ async def on_guild_join(guild):
 		await bot.warningData.update_by_id(dataset)
 		print(f"{member.name} in {guild.name} has been updated to warning database.")
 	await bot.prefixData.insert({"_id": guild.id, "prefix": "!"})
-
+	await bot.enabledPerGuildExtension.insert({"_id": guild.id})
 
 
 @bot.event
 async def on_message(message):
+	mention = f'<@!{bot.user.id}>'
+	if mention in message.content:
+		dataset = await bot.prefixData.find_by_id(message.guild.id)
+		prefix = dataset["prefix"]
+		await message.channel.send(f"My prefix is: `{prefix}`")   
 	if message.author.bot == False:
 
 		dataset = await bot.config.find_by_id(message.guild.id)
@@ -156,12 +161,13 @@ async def on_message(message):
 				else:
 					await message.delete()
 			await bot.process_commands(message)
+			return
 		await bot.process_commands(message)
 
 
 @tasks.loop(seconds=10)
 async def status_change():
-	statusTable = ["with CORE", "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
+	statusTable = ["with CORE",  "CORE Games", "over CORE Support", "with MikeyCorporation", "commands"]
 	statusChosen = choice(statusTable)
 	if statusChosen != "over CORE Support" and statusChosen != "commands":
 		await bot.change_presence(activity=discord.Game(name=statusChosen))
@@ -192,6 +198,36 @@ async def warningDataUpdate():
 					dataset[memberKey] = {"_id": member.id, "warnings": 0, "kicks": 0, "guild_id": guild.id}
 					await bot.warningData.update_by_id(dataset)
 					print(f"{member.name} in {guild.name} has been updated to warning database.")
+		if await bot.enabledPerGuildExtension.find_by_id(guild.id) == None:
+			await bot.enabledPerGuildExtension.insert({"_id": guild.id})
+@bot.command()
+@has_permissions(manage_guild = True)
+async def enable(ctx, extension):
+	extension = extension.lower()
+	listOfExtensions = ["meaxisnetwork", "roblox", "speedrun", "erlc"]
+	if extension not in listOfExtensions:
+		await ctx.send('This extension does not exist.')
+		return
+	if await bot.enabledPerGuildExtension.find_by_id(ctx.guild.id) != None:
+		dataset = await bot.enabledPerGuildExtension.find_by_id(ctx.guild.id)
+		dataset[extension] = True
+		await bot.enabledPerGuildExtension.update_by_id(dataset)
+		await ctx.send(f"{extension.capitalize()} has been enabled on your server.")
+	else:
+		await bot.enabledPerGuildExtension.insert({"_id": ctx.guild.id, extension: True})
+		await ctx.send(f"{extension.capitalize()} has been enabled.")
+
+@bot.command()
+@has_permissions(manage_guild = True)
+async def disable(ctx, extension):
+	if await bot.enabledPerGuildExtension.find_by_id(ctx.guild.id) != None:
+		dataset = await bot.enabledPerGuildExtension.find_by_id(ctx.guild.id)
+		dataset[extension] = False
+		await bot.enabledPerGuildExtension.update_by_id(dataset)
+		await ctx.send(f"{extension.capitalize()} has been disabled on your server.")
+	else:
+		await ctx.send("You cannot disable an extension you have not enabled.")
+
 
 @bot.command(name="reloadcogs")
 @commands.is_owner()
@@ -204,10 +240,16 @@ async def reloadcogs(ctx):
 	bot.reload_extension('cogs.creator')
 	bot.reload_extension('cogs.info')
 	bot.reload_extension('cogs.config')
-	bot.reload_extension('cogs.lcrp')
 	bot.reload_extension('cogs.announce')
 	bot.reload_extension('cogs.moderation')
-	bot.reload_extension('cogs.reactionroles')
+	bot.reload_extension('cogs.imagemanipulation')
+	bot.reload_extension('cogs.auditlog')
+	bot.reload_extension('cogs.python')
+
+	bot.reload_extension('extensions.meaxisnetwork')
+	bot.reload_extension('extensions.speedrun')
+	bot.reload_extension('extensions.roblox')
+	bot.reload_extension('extensions.erlc')
 
 
 @bot.command(name="eval", aliases=["exec", "run"], description="Evaluates and runs code on behalf of the bot.", usage="eval <Code>")
@@ -248,27 +290,6 @@ async def _eval(ctx, *, code):
 		)
 
 	await pager.start(ctx)
-    
-@bot.command(name="load", aliases=["loadextension", "loadext"], description="Loads the extension you provide.", usage="load <Extension>")
-async def load(ctx, extension):
-    extensionLowered = extension.lower()
-    try:
-        bot.load_extension(f'extensions.{extensionLowered}')
-        embed = discord.Embed(title="Extension loaded!", description=f"{extensionLowered}.py was loaded.", color=core_color)
-    except:
-        embed = discord.Embed(title="Extension could not be loaded!", description=f"{extensionLowered}.py could not be loaded as it does not exist.", color=core_color)
-    embed.set_thumbnail(url=ctx.bot.user.avatar_url)
-    await ctx.send(embed=embed)
-
-@bot.command(name="unload", aliases=["unloadextension", "unloadext"], description="Unloads the extension you provide.", usage="unload <Extension>")
-async def unload(ctx, extension):
-    bot.unload_extension(f'extensions.{extension}')
-
-@bot.command(name="reload", aliases=["reloadextension", "reloadext"], description="Reloads the extension you provide.", usage="reload <Extension>")
-async def reload(ctx, extension):
-	bot.unload_extension(f'extensions.{extension}')
-	bot.load_extension(f'extensions.{extension}')
-        
 
 try:
 	bot.run(token)
