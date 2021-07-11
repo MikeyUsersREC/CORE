@@ -27,29 +27,22 @@ class Announcements(commands.Cog):
 
 		def check(m):
 			return m.channel == channel and m.author == ctx.message.author
-		try:
-			msg = await self.bot.wait_for('message' , check=check , timeout=120)
-			if msg.content == "cancel":
-				cancelEmbed = discord.Embed(title="Announcement", description="Successfully cancelled!", color=core_color)
-				await channel.send(embed=cancelEmbed)
-				return
-			CategoryEmbed = discord.Embed(title="Announcement", description="What catgegory is your announcement? Categories: information, warning, 			important", color=core_color)
-			await channel.send(embed=CategoryEmbed)
-		except asyncio.TimeoutError:
-			TimeoutEmbed = discord.Embed(title="Timeout!", description="You have reached the 120 second timeout! Please send another command if you 			want to continue!", color=core_color)
-			await ctx.send(embed=TimeoutEmbed)
+		msg = await self.bot.wait_for('message' , check=check , timeout=120)
+		if msg.content == "cancel":
+			cancelEmbed = discord.Embed(title="Announcement", description="Successfully cancelled!", color=core_color)
+			await channel.send(embed=cancelEmbed)
 			return
-		try:
-			categoryMsg = await self.bot.wait_for('message' , check=check , timeout=120)
-			if msg.content == "cancel":
-				cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!", color=core_color)
-				await channel.send("" , embed=cancelEmbed)
-				return
-			SendingAnnouncementEmbed = discord.Embed(title="Announcement", description=f"Are you sure you want to send this announcement?\n\n 					{msg.content}", color=core_color)
-			await channel.send(embed=SendingAnnouncementEmbed)
-		except asyncio.TimeoutError:
-			TimeoutEmbed = discord.Embed(title="Timeout!", description="You have reached the 120 second timeout! Please send another command if you 			want to continue!", color=core_color)
-			await channel.send(embed=TimeoutEmbed)
+
+		CategoryEmbed = discord.Embed(title="Announcement", description="What catgegory is your announcement? Categories: information, warning, 			important", color=core_color)
+		await channel.send(embed=CategoryEmbed)
+
+		categoryMsg = await self.bot.wait_for('message' , check=check , timeout=120)
+		if msg.content == "cancel":
+			cancelEmbed = discord.Embed(title="Announcement" , description="Successfully cancelled!", color=core_color)
+			await channel.send(embed=cancelEmbed)
+			return
+		SendingAnnouncementEmbed = discord.Embed(title="Announcement", description=f"Are you sure you want to send this announcement?\n\n 					{msg.content}", color=core_color)
+		await channel.send(embed=SendingAnnouncementEmbed)
 		try:
 			Message = await self.bot.wait_for('message' , check=check , timeout=120)
 			if Message.content == "cancel" or Message.content == "no":
@@ -57,22 +50,22 @@ class Announcements(commands.Cog):
 				await channel.send("" , embed=cancelEmbed)
 				return
 			if categoryMsg.content.lower() == "information":
-				AnnouncementEmbed = discord.Embed(title="core | information" , description=msg.content, color=discord.Color.from_rgb(0 , 0 , 255))
-				AnnouncementEmbed.set_thumbnail(url="https://media.discordapp.net/attachments/733628287548653669/754109649074257960/768px-							Logo_informations.png?width=468&height=468")
+				AnnouncementEmbed = discord.Embed(title="{} | Information".format(ctx.guild.name), color=discord.Color.from_rgb(0 , 0 , 255))
+				AnnouncementEmbed.add_field(name = "Information", value = msg.content, inline = False)
+				AnnouncementEmbed.set_thumbnail(url="https://media.discordapp.net/attachments/733628287548653669/754109649074257960/768px-Logo_informations.png?width=468&height=468")
+
 			if categoryMsg.content.lower() == "important":
 				AnnouncementEmbed = discord.Embed(title=":loudspeaker: Important Announcement" , description=msg.content, 											color=discord.Color.from_rgb(255 , 0 , 0))
-				AnnouncementEmbed.set_thumbnail(
-	                url="https://cdn.discordapp.com/emojis/746034342303891585.png?v=1")
+				AnnouncementEmbed.set_thumbnail(url="https://cdn.discordapp.com/emojis/746034342303891585.png?v=1")
 			elif categoryMsg.content.lower() == "warning":
 				AnnouncementEmbed = discord.Embed(title=":warning: Warning Announcement", description=msg.content, 													color=discord.Color.from_rgb(252, 206, 0))
-			else:
-				PleaseTryAgain = discord.Embed(title="Error:", description="You did not put the one of the valid categories available for this 						announcement, please try again.", color= discord.Color.from_rgb(255, 0, 0))
-				await ctx.send(embed=PleaseTryAgain)
-				return
-			SendingAnnouncementEmbed = discord.Embed(title="Announcement" ,
-	        description="Sending announcement...\n\n" + msg.content ,
-	        color=core_color)
+
+			elif categoryMsg.content.lower() not in ["warning", "information", "warning"]:
+				raise Exception('You did not put one of the valid categories for the announcement')
+			SendingAnnouncementEmbed = discord.Embed(title="Announcement", description="Sending announcement...\n\n" + msg.content, color=core_color)
 			await channel.send(embed=SendingAnnouncementEmbed)
+			AnnouncementEmbed.set_author(name = ctx.author.name, icon_url = ctx.author.avatar_url)
+			AnnouncementEmbed.set_footer(text = f"{ctx.guild.name} - {msg.created_at.strftime('%m/%d/%Y, %H:%M:%S')}", icon_url = ctx.guild.icon_url)
 			await announcements.send("@everyone" , embed=AnnouncementEmbed)
 		except asyncio.TimeoutError:
 			TimeoutEmbed = discord.Embed(title="Timeout!", description="You have reached the 120 second timeout! Please send another command if you 			want to continue!", color=core_color)

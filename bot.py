@@ -1,13 +1,11 @@
-# Importing Packages
-
-from datetime import datetime
-from discord.ext import commands, tasks
-from discord.ext.commands import CheckFailure, has_role, has_permissions
-from discord.utils import get
-from random import randint, choice
-from traceback import format_exception
-from utils.mongo import Document
-from utils.utils import clean_code, Pag
+from datetime import datetime 
+from discord.ext import commands, tasks 
+from discord.ext.commands import CheckFailure, has_role, has_permissions 
+from discord.utils import get 
+from random import randint, choice 
+from traceback import format_exception 
+from utils.mongo import Document 
+from utils.utils import clean_code, Pag 
 import gpiozero
 
 import asyncio
@@ -86,8 +84,9 @@ async def on_ready():
 	bot.config = Document(bot.db, "info")
 	bot.warningData = Document(bot.db, "warnings")
 	bot.prefixData = Document(bot.db, "prefixes")
-
+	bot.actionLogs = {}
 	bot.enabledPerGuildExtension = Document(bot.db, "enabledExtensions")
+
 
 	for document in await bot.config.get_all():
 		print(document)
@@ -120,6 +119,8 @@ async def on_ready():
 	bot.load_extension('cogs.imagemanipulation')
 	bot.load_extension('cogs.auditlog')
 	bot.load_extension('cogs.python')
+	bot.load_extension('cogs.music')
+	bot.load_extension('jishaku')
 
 	bot.load_extension('extensions.meaxisnetwork')
 	bot.load_extension('extensions.speedrun')
@@ -142,6 +143,10 @@ async def on_guild_join(guild):
 		print(f"{member.name} in {guild.name} has been updated to warning database.")
 	await bot.prefixData.insert({"_id": guild.id, "prefix": "!"})
 	await bot.enabledPerGuildExtension.insert({"_id": guild.id})
+	try:
+		await guild.default_channel.send('Hey! I\'m CORE! My prefix is c! and you can see all my commands via the c!help command!\n\nDocumentation: https://mikeycorporation.com/docs\nSource Code: https://github.com/MikeyUsersREC/CORE\nWebsite (Unfinished): https://mikeycorporation.com\nDiscord Bot List: https://discordbotlist.com/bots/core')
+	except:
+		pass
 
 
 @bot.event
@@ -154,14 +159,18 @@ async def on_message(message):
 	if message.author.bot == False:
 
 		dataset = await bot.config.find_by_id(message.guild.id)
-		if dataset["link_automoderation"]:
-			if "https://" in message.content or "discord.gg/" in message.content:
-				if message.author.guild_permissions.manage_guild:
-					await bot.process_commands(message)
-				else:
-					await message.delete()
-			await bot.process_commands(message)
-			return
+		print(dataset)
+		try:
+			if dataset["link_automoderation"]:
+				if "https://" in message.content or "discord.gg/" in message.content:
+					if message.author.guild_permissions.manage_guild:
+						await bot.process_commands(message)
+					else:
+						await message.delete()
+				await bot.process_commands(message)
+				return
+		except:
+			pass
 		await bot.process_commands(message)
 
 
@@ -204,7 +213,7 @@ async def warningDataUpdate():
 @has_permissions(manage_guild = True)
 async def enable(ctx, extension):
 	extension = extension.lower()
-	listOfExtensions = ["meaxisnetwork", "roblox", "speedrun", "erlc"]
+	listOfExtensions = ["meaxisnetwork", "roblox", "speedrun", "erlc", "0f128am-1823301-191y9-q77r61-09a99qm-oaowiqu7-177a"]
 	if extension not in listOfExtensions:
 		await ctx.send('This extension does not exist.')
 		return
@@ -216,6 +225,8 @@ async def enable(ctx, extension):
 	else:
 		await bot.enabledPerGuildExtension.insert({"_id": ctx.guild.id, extension: True})
 		await ctx.send(f"{extension.capitalize()} has been enabled.")
+	if extension == "0f128am-1823301-191y9-q77r61-09a99qm-oaowiqu7-177a":
+		await ctx.send("**PRIVATE DEVELOPMENT BUILD HAS BEEN ENABLED. USE AT YOUR OWN RISK.**")
 
 @bot.command()
 @has_permissions(manage_guild = True)
@@ -250,47 +261,6 @@ async def reloadcogs(ctx):
 	bot.reload_extension('extensions.speedrun')
 	bot.reload_extension('extensions.roblox')
 	bot.reload_extension('extensions.erlc')
-
-
-@bot.command(name="eval", aliases=["exec", "run"], description="Evaluates and runs code on behalf of the bot.", usage="eval <Code>")
-@commands.is_owner()
-async def _eval(ctx, *, code):
-	code = clean_code(code)
-
-	local_variables = {
-		"discord": discord,
-		"commands": commands,
-		"bot": bot,
-		"ctx": ctx,
-		"channel": ctx.channel,
-		"author": ctx.author,
-		"guild": ctx.guild,
-		"message": ctx.message
-	    }
-
-	stdout = io.StringIO()
-
-	try:
-		with contextlib.redirect_stdout(stdout):
-			exec(
-				f"async def func():\n{textwrap.indent(code, '    ')}", local_variables,
-			)
-
-			obj = await local_variables["func"]()
-			result = f"{stdout.getvalue()}\n-- {obj}\n"
-	except Exception as e:
-		result = "".join(format_exception(e, e, e.__traceback__))
-
-	pager = Pag(
-		timeout=100,
-		entries=[result[i: i + 2000] for i in range(0, len(result), 2000)],
-		length=1,
-		prefix="```py\n",
-		suffix="```"
-		)
-
-	await pager.start(ctx)
-
 try:
 	bot.run(token)
 except Exception as e:

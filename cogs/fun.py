@@ -45,40 +45,40 @@ class Fun(commands.Cog):
 			num1 = randint(100, 1000)
 			num2 = randint(1000, 5000)
 			result = num1 + num2
-			mathsEmbed = discord.Embed(title="Maths with COREEEEEE", description=f"Work out this calculation and say it in chat.\n\n{num1} + {num2}", color=core_color)
+			mathsEmbed = discord.Embed(title="Maths with CORE", description=f"Work out this calculation and say it in chat.\n\n{num1} + {num2}", color=core_color)
 			mathsEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
 			await ctx.send(embed=mathsEmbed)
 			try:
-				msg = await bot.wait_for("message")
+				msg = await self.bot.wait_for("message", timeout = 10)
 				if msg.content == str(result):
-					succesfulEmbed = discord.Embed(title="Maths with COREEEEEE", description="You successfully guessed the answer.", color=core_color)
-					succesfulEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
+					succesfulEmbed = discord.Embed(title="Maths with CORE", description="You successfully guessed the answer.", color=core_color)
+					succesfulEmbed.set_thumbnail(url= self.bot.user.avatar_url)
 					await ctx.send(embed=succesfulEmbed)
 				else:
-					failureEmbed = discord.Embed(title="Maths with COREEEEEE", description="Answer was incorrect.", color=core_color)
-					failureEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
+					failureEmbed = discord.Embed(title="Maths with CORE", description="Answer was incorrect.", color=core_color)
+					failureEmbed.set_thumbnail(url = self.bot.user.avatar_url)
 					await ctx.send(embed=failureEmbed)
-			except:
-				return
+			except Exception as e:
+				await ctx.send(e)
 		elif arg == "operation":
 			if arg2 == "add":
 				number = arg3 + arg4
-				addEmbed = discord.Embed(title="Maths with COREEEEEE", description=f"Answer is: {number}", color=core_color)
+				addEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
 				addEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=addEmbed)
 			if arg2 == "minus" or arg2 == "subtract":
 				number = arg3 - arg4
-				subtractEmbed = discord.Embed(title="Maths with COREEEEEE", description=f"Answer is: {number}", color=core_color)
+				subtractEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
 				subtractEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=subtractEmbed)
 			if arg2 == "multiply" or arg2 == "times":
 				number = arg3 * arg4
-				multiplyEmbed = discord.Embed(title="Maths with COREEEEEE", description=f"Answer is: {number}", color=core_color)
+				multiplyEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
 				multiplyEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=multiplyEmbed)
 			if arg2 == "divide" or arg2 == "share":
 				number = arg3 / arg4
-				divideEmbed = discord.Embed(title="Maths with COREEEEEE", description=f"Answer is: {number}", color=core_color)
+				divideEmbed = discord.Embed(title="Maths with CORE", description=f"Answer is: {number}", color=core_color)
 				divideEmbed.set_thumbnail(url=ctx.bot.user.avatar_url)
 				await ctx.send(embed=divideEmbed)
 

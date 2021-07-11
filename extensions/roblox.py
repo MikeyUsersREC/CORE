@@ -50,7 +50,7 @@ class Roblox(commands.Cog, name = "Roblox Commands"):
 
 
 
-				embed.color =  COREEE_color
+				embed.color =  core_color
 				headshot_url = f"https://www.roblox.com/headshot-thumbnail/image?userId={userid}&width=420&height=420&format=png"
 				embed.set_thumbnail(url=headshot_url)
 				embed.set_footer(text="Roblox |  CORE", icon_url=self.bot.user.avatar_url)
@@ -87,7 +87,7 @@ class Roblox(commands.Cog, name = "Roblox Commands"):
 
 			embed.add_field(name="Created", value=f"{created}", inline=False)
 
-			embed.color =  COREEE_color
+			embed.color =  core_color
 			embed.set_thumbnail(url=self.bot.user.avatar_url)
 			embed.set_footer(text="Roblox |  CORE", icon_url=self.bot.user.avatar_url)
 			await ctx.send(embed=embed)

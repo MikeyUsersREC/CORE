@@ -23,10 +23,10 @@ class Help(commands.Cog):
         )
         helpEmbed.set_thumbnail(url=self.bot.user.avatar_url)
 
-        # Get a list of all our current cogs & rmeove ones without commands
+        # Get a list of all our current cogs & remove ones without commands
         cogs = [c for c in self.bot.cogs.keys()]
 
-        ExtensionsToRemove = ["ERLC", "MeaxisNetwork", "Roblox Commands", "Speedrun Commands", "TopGG"]
+        ExtensionsToRemove = ["ERLC", "MeaxisNetwork", "Roblox Commands", "Speedrun Commands", "TopGG", "Events"]
         try:
             for item in ExtensionsToRemove:
                 cogs.remove(item)
@@ -98,7 +98,7 @@ class Help(commands.Cog):
                 else:
                     prefix = data['prefix']
 
-                helpText += f'**Format:** `{prefix}{command.name} {command.usage if command.usage is not None else ""}`\n\n'
+                helpText += f'**Format:** `{prefix}{command.name} {command.usage.replace(command.name, "") if command.usage is not None else ""}`\n\n'
             helpEmbed.description = helpText
 
         else:

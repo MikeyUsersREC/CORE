@@ -1,0 +1,12 @@
+MANIFEST.in
+README.md
+setup.py
+DiscordUtils/InviteTracker.py
+DiscordUtils/Music.py
+DiscordUtils/Pagination.py
+DiscordUtils/__init__.py
+DiscordUtils.egg-info/PKG-INFO
+DiscordUtils.egg-info/SOURCES.txt
+DiscordUtils.egg-info/dependency_links.txt
+DiscordUtils.egg-info/requires.txt
+DiscordUtils.egg-info/top_level.txt

@@ -126,13 +126,13 @@ class MeaxisNetwork(commands.Cog):
 			creations = requests.get(f"https://api.meaxisnetwork.net/v3/users/{id}/creations").json()
 			applications = requests.get(f"https://api.meaxisnetwork.net/v3/users/{id}/applications").json()
 			activity = requests.get(f"https://api.meaxisnetwork.net/v3/users/{id}/activity").json()
-			activity = "\nActivity: \n\n" + str(activity)[:1900] + "...\n"
-			applications = "\nApplications: \n\n" + str(applications)[:1900] + "...\n"
-			creations = "\nCreations:\n \n" + str(creations)[:1900] + "...\n"
+			for item in ["act"]
+			activty = "```json\nActivity: \n" + str(activity) + "...\n```"
+			applications = "```json\nApplications: \n" + str(applications)[:1000] + "...\n```"
+			creations = "```json\nCreations: \n" + str(creations)[:1000] + "...\n```"
 			await ctx.author.send(applications)
 			await ctx.author.send(activity)
 			await ctx.author.send(creations)
-			return
 		await ctx.send(embed=embed)
 
 def setup(bot):

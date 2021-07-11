@@ -19,15 +19,20 @@ class Information(commands.Cog):
 
 	@commands.command(name="support", description="Invites you to the CORE Support Server.", usage="support")
 	async def support(self, ctx):
-		embed = discord.Embed(title="Support", description="Support Server: https://discord.gg/YH8WQCT", color=core_color)
-		embed.set_thumbnail(url=ctx.bot.user.avatar_url)
-		await ctx.author.send(embed=embed)
+		await ctx.send("https://discord.gg/YH8WQCT")
 
 	@commands.command(name="invite", description="Sends you the invite link for the CORE Bot.", usage="invite")
 	async def invite(self, ctx):
-		embed = discord.Embed(title="Bot Invite", description="https://discord.com/api/oauth2/authorize?client_id=734495486723227760&permissions=8&scope=bot", color=core_color)
-		embed.set_thumbnail(url=ctx.bot.user.avatar_url)
-		await ctx.author.send(embed=embed)
+		await ctx.send(embed = discord.Embed(title = "Invite CORE to your server", description = "[Click here](https://discord.com/api/oauth2/authorise?client_id=734495486723227760&permissions=8&scope=bot) to invite CORE to your server.").set_thumbnail(url = self.bot.user.avatar_url))
+
+	@commands.command(name = "vote", description = "Sends you the link to vote for the CORE bot.")
+	async def vote(self, ctx):
+		embed = discord.Embed(title = "Vote for CORE", color = core_color)
+		embed.add_field(name = "Vote on Top.gg", value = "[Click here](https://top.gg/bot/734495486723227760/vote) to vote on Top.gg", inline = False)
+		embed.add_field(name = "Vote on Discord Bot List", value = "To vote on [Discord Bot List](https://discordbotlist.com), you may go to this [voting link](https://discordbotlist.com/bots/core).", inline = False)
+		embed.add_field(name = "Note", value = "Soon, there is planned to be Vote Rewards in CORE, but CORE will always be a free discord bot and won't be a paid service. Voting isn't mandatory and CORE will never require it. If you vote, I thank you for contributing to CORE's development.", inline = False)
+		embed.set_thumbnail(url = self.bot.user.avatar_url)
+		await ctx.send(embed = embed)
 
 	@commands.command(name="uptime", description="Tells you how long CORE has been online.", usage="invite")
 	async def uptime(self, ctx):
@@ -40,6 +45,7 @@ class Information(commands.Cog):
 	@commands.command(name="version", description="Gives you information about the most recent update", usage="version")
 	async def version(self, ctx):
 		updateEmbed = discord.Embed(title="Version History", color=core_color)
+		updateEmbed.add_field(name = "Version 1.21", value = "Changes:\n\n- Music Commands! Been in private beta for a long time.\n- Server Owners will soon be able to opt into Beta Channel to allow access to new features and release to updates before anyone else.\n\nApologies for the 4 month delay between 1.20 and 1.21, it's been a rough slate of development thinking of ideas to add. Hope to speed up the development process as I gain more motivation. Thank you for staying with CORE and we hope you enjoy your experience.")
 		updateEmbed.add_field(name = "Version 1.20", value = "Patches:\n\n- Moved from Cloud Hosting to MikeyCorporation CSA\n- Extended Image Manipulation\n- Added the audit log command\n- Added the Python Programming commands to CORE allowing cheatsheet APIs to be used to gain information about python\n- Added a new 'Enable / Disable' Database to allow Extensions to be used server wide instead of previously global extensions.\n- Added more support for extensions ranging from configuration changes to entire command groups being added.", inline = False)
 		updateEmbed.add_field(name = "Version 1.19", value = "Minor Changes:\n\n- Added the Image Manipulation Cog\n- Fixing bugs with announce command among others in that group", inline = False)
 		updateEmbed.add_field(name = "Version 1.18", value = "New commands: \n\n- Added an 8ball command.\n- Added a better help command.\n- Added a better way of updating CORE without having to restart it.", inline = False)

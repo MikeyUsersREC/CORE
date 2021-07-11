@@ -33,9 +33,11 @@ class ImageManipulation(commands.Cog, name="Image Manipulation"):
 
 		await ctx.send(file = discord.File(r"images\wanted.jpg"))
 	@commands.command(name="8bit", description = "Makes your profile picture 8 bit, retro style.", aliases = ["8bitify", "make8bit"], usage = "8bit")
-	async def eightbit_command(self, ctx):
+	async def eightbit_command(self, ctx, user: discord.Member = None):
+			if user == None:
+				user = ctx.author
 			async with ctx.typing():
-				image_bytes = await ctx.author.avatar_url.read()
+				image_bytes = await user.avatar_url.read()
 				avatar = Image.open(BytesIO(image_bytes))
 				avatar = avatar.convert("RGBA").resize((1024, 1024))
 
@@ -49,8 +51,8 @@ class ImageManipulation(commands.Cog, name="Image Manipulation"):
 				file = discord.File(bufferedio, filename="8bitavatar.png")
 
 				embed = discord.Embed(
-					title="Your 8-bit avatar",
-					description='Here is your avatar. I think it looks pretty cool!',
+					title=f"{user.name}'s 8-bit avatar",
+					description='I think it looks pretty cool!',
 					color = core_color
 			)
 
