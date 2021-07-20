@@ -1,5 +1,0 @@
-discord.py
-
-[voice]
-discord.py[voice]
-youtube-dl

@@ -93,3 +93,4 @@ class MusicCommands(commands.Cog, name = "Music Commands"):
 
 def setup(bot):
 	bot.add_cog(MusicCommands(bot))
+
