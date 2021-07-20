@@ -26,7 +26,6 @@ class Help(commands.Cog):
         # Get a list of all our current cogs & remove ones without commands
         cogs = [c for c in self.bot.cogs.keys()]
         ExtensionsToRemove = ["ERLC", "MeaxisNetwork", "Roblox Commands", "Speedrun Commands", "TopGG", "Events"]
-        ExtensionsToRemove = ["ERLC", "MeaxisNetwork", "Roblox Commands", "Speedrun Commands", "TopGG"]
         try:
             for item in ExtensionsToRemove:
                 cogs.remove(item)
