@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
+
 import asyncio
 
 core_color = discord.Color.from_rgb(30, 144, 255)
-
-
-
 class CreatorCommands(commands.Cog, name="Creator Commands"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -105,7 +103,6 @@ class CreatorCommands(commands.Cog, name="Creator Commands"):
 
 						except:
 							pass
-
 
 def setup(bot):
 	bot.add_cog(CreatorCommands(bot))

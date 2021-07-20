@@ -8,8 +8,7 @@ class AuditLogCommands(commands.Cog, name = "Audit Log Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(name = "auditlogs", description = "Gets the audit logs of a user or server.", aliases = ["al", "logs"], usage = "auditlog [User]")
-	@has_permissions(manage_guild = True)
+	@commands.command(name = "auditlogs", description = "Gets the audit logs of a user or server.", aliases = ["al", "logs"], usage = "auditlog [User]
 	async def _auditlogs(self, ctx, limit = 15, user: discord.User = None):
 		GetAuditLogs = ctx.guild.audit_logs(limit = limit)
 		if user == None:
@@ -20,16 +19,6 @@ class AuditLogCommands(commands.Cog, name = "Audit Log Commands"):
 		embed.set_thumbnail(url = self.bot.user.avatar_url)
 		embed.set_footer(text = "Audit Logs | CORE", icon_url = self.bot.user.avatar_url)
 		for entry in AuditLogs:
-			ENTRY_VARS = [vars(entry).items()]
-			message = f"{str(entry.action.category).replace('_', ' ').replace('AuditLogActionCategory.', '').capitalize()}\nUser: {entry.user.name}\n"
-			for item in ENTRY_VARS:
-				for key, value in item:
-					if len(message) <= 200 and not key.startswith('_'):
-						message += f"{key.capitalize()}: {value}\n"
-					elif len(message) >= 200:
-						message += "..."
-						continue
-			embed.add_field(name = str(entry.action).replace('_', ' ').replace('AuditLogAction.', '').capitalize(), value = f"Action Type: {message}", inline = False)
 			embed.add_field(name = str(entry.action).replace('_', ' ').replace('AuditLogAction.', '').capitalize(), value = f"Action Type: {str(entry.action.category).replace('_', ' ').replace('AuditLogActionCategory.', '').capitalize()}\nUser: {entry.user.mention}", inline = False)
 		await ctx.send(embed = embed)
 

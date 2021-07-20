@@ -33,7 +33,6 @@ class Information(commands.Cog):
 		embed.add_field(name = "Note", value = "Soon, there is planned to be Vote Rewards in CORE, but CORE will always be a free discord bot and won't be a paid service. Voting isn't mandatory and CORE will never require it. If you vote, I thank you for contributing to CORE's development.", inline = False)
 		embed.set_thumbnail(url = self.bot.user.avatar_url)
 		await ctx.send(embed = embed)
-
 	@commands.command(name="uptime", description="Tells you how long CORE has been online.", usage="invite")
 	async def uptime(self, ctx):
 		delta_uptime = datetime.utcnow() - self.bot.launch_time

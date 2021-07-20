@@ -8,6 +8,7 @@ from inspect import getmembers, ismethod
 from selenium import webdriver
 import requests
 from base64 import b64encode
+from inspect import getmembers, ismethod
 
 core_color = discord.Color.from_rgb(30, 144, 255)
 
@@ -61,11 +62,30 @@ class Utility(commands.Cog):
 		else:
 			return
 		await asyncio.sleep(timeDown)
-		embed = discord.Embed(title="Timer is up", description=f"The timer you set for {time} has ended.", color=core_color)
-		embed.set_thumbnail(url=ctx.bot.user.avatar_url)
-		await ctx.send(f"{ctx.author.mention}", embed=embed)
-		return
+		await ctx.send(f'{ctx.author.mention} Your countdown has finished for {timeDown} seconds.')
+	@commands.command(name="userinfo", description="Gets the information of the mentioned user.", aliases=["getuser", "get_user", "getinfo"], usage="userinfo <User>")
+	async def userinfo(self, ctx, *, member: discord.Member):
+		infoEmbed = discord.Embed(title=f"{member.name} | User Information", color=core_color)
+		for key, value in vars(member.__class__).items():
+				if hasattr(member, key) and not getmembers(member, lambda x: not ismethod(x)):
+						attr = getattr(member, key, "DNE")
+						await ctx.send(f"{key}: {attr}")
+						await asyncio.sleep(1)
+		infoEmbed.set_thumbnail(url=member.avatar_url)
+		await ctx.send(embed=infoEmbed)
 
+
+	@commands.command(name="serverinfo", description="Gets the information of the mentioned user.", aliases=["guildinfo", "getguild", "getguildinfo"], usage="serverinfo")
+	async def serverinfo(self, ctx):
+		infoEmbed = discord.Embed(title=f"{ctx.guild.name} | Server Information", color=core_color)
+		for key, value in vars(ctx.guild).items():
+			try:
+				infoEmbed.add_field(name = key.capitalize().replace("_", " "), value = f"{value.replace()}", inline = False)
+			except:
+				pass
+
+		infoEmbed.set_thumbnail(url=ctx.guild.icon_url)
+		await ctx.send(embed=infoEmbed)
 	@commands.command(name="prefix", aliases=["changeprefix", "viewprefix"], description="Changes your server prefix.", usage="<Prefix>")
 	@has_permissions(manage_guild=True)
 	async def prefix(self, ctx, arg=None):

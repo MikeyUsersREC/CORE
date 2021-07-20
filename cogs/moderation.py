@@ -6,7 +6,6 @@ import asyncio
 core_color = discord.Color.from_rgb(30, 144, 255)
 
 class Moderation(commands.Cog):
-
 	def __init__(self, bot):
 		self.bot = bot
 

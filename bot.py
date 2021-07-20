@@ -1,3 +1,4 @@
+
 from datetime import datetime 
 from discord.ext import commands, tasks 
 from discord.ext.commands import CheckFailure, has_role, has_permissions 
@@ -6,6 +7,16 @@ from random import randint, choice
 from traceback import format_exception 
 from utils.mongo import Document 
 from utils.utils import clean_code, Pag 
+# Importing Packages
+
+from datetime import datetime
+from discord.ext import commands, tasks
+from discord.ext.commands import CheckFailure, has_role, has_permissions
+from discord.utils import get
+from random import randint, choice
+from traceback import format_exception
+from utils.mongo import Document
+from utils.utils import clean_code, Pag
 import gpiozero
 
 import asyncio
@@ -31,8 +42,8 @@ mongodbtoken = None
 
 with open("secrets.json", "r") as f:
 	secret_data = json.load(f)
-	token = secret_data["BOT-TOKEN"]
-	mongodbtoken = secret_data["MONGODB-TOKEN"]
+	token = secret_data["DISCORD_BOT_TOKEN"]
+	mongodbtoken = secret_data["MONGODB_TOKEN"]
 
 
 if token == None or mongodbtoken == None:
@@ -87,7 +98,6 @@ async def on_ready():
 	bot.actionLogs = {}
 	bot.enabledPerGuildExtension = Document(bot.db, "enabledExtensions")
 
-
 	for document in await bot.config.get_all():
 		print(document)
 
@@ -121,7 +131,6 @@ async def on_ready():
 	bot.load_extension('cogs.python')
 	bot.load_extension('cogs.music')
 	bot.load_extension('jishaku')
-
 	bot.load_extension('extensions.meaxisnetwork')
 	bot.load_extension('extensions.speedrun')
 	bot.load_extension('extensions.roblox')
@@ -261,6 +270,7 @@ async def reloadcogs(ctx):
 	bot.reload_extension('extensions.speedrun')
 	bot.reload_extension('extensions.roblox')
 	bot.reload_extension('extensions.erlc')
+
 try:
 	bot.run(token)
 except Exception as e:
